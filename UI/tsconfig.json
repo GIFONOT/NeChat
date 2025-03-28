@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
+    "types": ["vite/client"],
     "strict": true,
     "jsx": "preserve",
     "moduleResolution": "node",
@@ -12,7 +13,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"]
+      "@pages/*": ["src/pages/*"],
+      "@assets/*": ["src/app/assets/*"],
     }
   },
   "include": [
@@ -21,5 +23,5 @@
     "src/**/*.tsx",
     "src/**/*.vue"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

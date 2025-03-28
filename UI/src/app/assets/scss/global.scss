@@ -1,0 +1,45 @@
+:root {
+  --font-primary: "Roboto", sans-serif;
+  --font-secondary: "Open Sans", sans-serif;
+
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-base: 16px;
+  --text-lg: 18px;
+
+  --color-primary: #4285f4;
+  --color-background: #ffffff;
+  --color-text: #202124;
+}
+
+.dark {
+  --color-primary: #8ab4f8;
+  --color-background: #202124;
+  --color-text: #e8eaed;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-lg);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: all 0.3s ease;
+
+  a {
+    color: var(--color-primary);
+  }
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("../fonts/Roboto-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Open Sans";
+  src: url("../fonts/OpenSans-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
