@@ -13,6 +13,10 @@ export default [
         browser: true,
         node: true,
       },
+      parser: tsPlugin.parser,
+      parserOptions: {
+        project: true,
+      },
     },
   },
 
@@ -33,12 +37,6 @@ export default [
     files: ["**/*.ts", "**/*.tsx"],
     ...tsPlugin.configs["flat/recommended"],
   },
-  {
-    files: ['**/*.ts'],
-    languageOptions: {
-      parser: tsPlugin.parser,
-    }
-  },
 
   eslintConfigPrettier,
 
@@ -48,5 +46,12 @@ export default [
       "@typescript-eslint/no-explicit-any": "warn",
       "prettier/prettier": "error",
     },
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      { 
+        prefer: "type-imports",
+        disallowTypeAnnotations: false 
+      }
+    ]
   },
 ];
