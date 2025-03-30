@@ -15,6 +15,7 @@
       "@components/*": ["src/components/*"],
       "@pages/*": ["src/pages/*"],
       "@assets/*": ["src/app/assets/*"],
+      "@stores/*": ["src/app/router/stores/*"],
     }
   },
   "include": [
