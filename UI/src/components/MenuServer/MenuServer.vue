@@ -40,6 +40,7 @@ import { ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import { useRouter } from "vue-router";
 import CreateServerModal from "@/components/CreateServerModal.vue";
+import Search from "@components/Search.vue"
 
 interface Server {
   id: string;
@@ -71,7 +72,7 @@ const router = useRouter();
 
 const selectServer = (id: string) => {
   activeServerId.value = id;
-  router.replace({
+  router.push({
     name: "server-detail",
     params: { id },
   });
@@ -96,18 +97,20 @@ const createNewServer = (newServer: { name: string; image?: string }) => {
   display: flex;
   flex-direction: column;
   width: 72px;
-  height: 85vh;
+  height: 80vh;
   top: 10px;
-  background-color: var(--element-bg);
+  //background-color: var(--element-bg);
+  border-right: 1px solid var(--element-bg);
   padding: 8px 10px 8px 10px;
   overflow-y: auto;
-  border-radius: 10px;
+  scrollbar-width: none; 
 
   &__header {
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-bottom: 16px;
+    border-bottom: 1px solid var(--element-bg);
   }
 
   &__title {
@@ -116,9 +119,9 @@ const createNewServer = (newServer: { name: string; image?: string }) => {
   }
 
   &__add-icon {
+    margin-bottom: 10px;
     &:hover {
       cursor: pointer;
-      color: var(--accent);
     }
   }
 
@@ -144,7 +147,6 @@ const createNewServer = (newServer: { name: string; image?: string }) => {
   overflow: hidden;
 
   &:hover {
-    //transform: scale(1.05);
     border-radius: 30%;
   }
 

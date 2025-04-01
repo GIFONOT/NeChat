@@ -74,8 +74,8 @@ const selectChannel = (channelId: string) => {
 .server-container {
   background-color: var(--element-bg);
   position: fixed;
-  top: 20px;
-  left: 200px;
+  top: 100px;
+  left: 500px;
   display: flex;
   justify-content: center;
   align-items: center;

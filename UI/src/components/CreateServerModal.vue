@@ -151,15 +151,22 @@ defineExpose({ openModal });
   }
 
   &__close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--error);
-    padding: 4px;
-    transition: all 0.1s;
+    color: var(--text-secondary);
+    margin-left: 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
 
     &:hover {
-      opacity: 0.8;
+      background-color: var(--border);
+      color: var(--text-primary);
     }
   }
 }
@@ -193,8 +200,8 @@ defineExpose({ openModal });
   }
 }
 .file-input {
-    display: none;
-  }
+  display: none;
+}
 .form-group {
   &__image-upload {
     display: flex;

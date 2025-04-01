@@ -1,6 +1,9 @@
 <template>
   <div class="UserBar">
-    <span class="UserBar__name">{{ user.name }}</span>
+    <div class="UserBar__name">
+      <img v-if="user.image" :src="user.image" class="UserBar__image" />
+      {{ user.name }}
+    </div>
     <FeatherIcon
       class="UserBar__icon"
       :key="user.mic ? 'mic' : 'mic-off'"
@@ -35,24 +38,39 @@ const user = UserStores();
 .UserBar {
   display: flex;
   width: max-content;
-  position: fixed;
+  //position: fixed;
   align-items: center;
-  bottom: 10px;
-  left: 10px;
+  //bottom: 10px;
+  //left: 10px;
   z-index: 100;
-  width: 300px;
+  width: auto;
   height: 35px;
-  background-color: var(--element-bg);
-  //border: 1px solid var(--border);
-  padding: 8px 10px 8px 10px;
+  //background-color: var(--element-bg);
+  //border-radius: 12px;
+  padding: 15px 15px 15px 15px;
   gap: 14px;
-  border-radius: 10px;
+  border-top: 1px solid var(--element-bg);
+
   &__name {
     font-size: var(--text-xl);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex: 1;
+    cursor: pointer;
+    :hover {
+      cursor: pointer;
+      background-color: var(--element-bg);
+    }
+  }
+  &__image {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
   }
   &__icon {
     :hover {
