@@ -2,7 +2,6 @@
   <ServerDetail
     :server="{
       id: route.params.id,
-      name: route.params.id,
     }"
   />
 </template>
