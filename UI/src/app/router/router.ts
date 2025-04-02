@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router' 
 import home from "./home/index"
 import { useAuthStore } from "@stores/AuthStore";
-
+ 
 export const routes: RouteRecordRaw[] = [
   home,
   {
