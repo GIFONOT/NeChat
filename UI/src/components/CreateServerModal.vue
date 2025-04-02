@@ -159,14 +159,13 @@ defineExpose({ openModal });
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     margin-left: 6px;
     border-radius: 50%;
     transition: all 0.2s;
 
     &:hover {
       background-color: var(--border);
-      color: var(--text-primary);
     }
   }
 }
