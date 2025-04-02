@@ -7,6 +7,9 @@
         <input v-model="password" type="password" placeholder="Пароль" required />
         <button type="submit">Войти</button>
       </form>
+
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
       <p class="switch-form">
         Нет аккаунта? 
         <button @click="goToRegister">Зарегистрироваться</button>
@@ -24,9 +27,14 @@ const authStore = useAuthStore();
 const router = useRouter();
 const email = ref("");
 const password = ref("");
+const errorMessage = ref("");
 
 const login = async () => {
-  await authStore.login(email.value, password.value);
+  try {
+    await authStore.login(email.value, password.value);
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || "Ошибка авторизации. Неверные почта/пароль.";
+  }
 };
 
 const goToRegister = () => {
@@ -53,6 +61,8 @@ const goToRegister = () => {
   border-radius: 8px;
   text-align: center;
   width: 300px;
+  color: black;
+  opacity: 1 !important; /* Явно указываем, что текст не должен становиться прозрачным */
 }
 
 input {
@@ -76,6 +86,11 @@ button {
 
 button:hover {
   background: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
 }
 
 .switch-form {

@@ -27,6 +27,7 @@ export const useAuthStore = defineStore("auth", {
         console.log("Успешный вход:", this.user);
       } catch (error) {
         console.error("Ошибка входа:", error);
+        throw error;
       }
     },
 
@@ -36,6 +37,7 @@ export const useAuthStore = defineStore("auth", {
         console.log("Пользователь зарегистрирован, теперь можно входить");
       } catch (error) {
         console.error("Ошибка регистрации:", error);
+        throw error;
       }
     },
 

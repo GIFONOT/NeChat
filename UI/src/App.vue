@@ -4,6 +4,7 @@
   </div>
   <div v-else>
     <!-- Постоянные элементы (будут на всех страницах) -->
+    <LogoutButton />
     <ThemeToggle />
     <div class="Main">
       <Search />
@@ -25,6 +26,7 @@ import MenuServer from "@components/MenuServer/MenuServer.vue";
 import ThemeToggle from "@components/ThemeToggle.vue";
 import Search from "@components/Search.vue";
 import MenuFriend from "@components/MenuFriend/MenuFriend.vue";
+import LogoutButton from "@components/LogoutButton/LogoutButton.vue";
 
 const authStore = useAuthStore();
 </script>

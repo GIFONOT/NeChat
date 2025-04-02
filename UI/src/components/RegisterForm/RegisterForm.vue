@@ -10,6 +10,9 @@
         <input v-model="birth_date" type="date" placeholder="Дата рождения (гггг.мм.дд)" required />
         <button type="submit">Зарегистрироваться</button>
       </form>
+
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
       <p class="switch-form">
         Есть аккаунт?
         <button @click="goToLogin">Войти</button>
@@ -30,9 +33,15 @@ const password = ref("");
 const username = ref("");
 const first_name = ref("");
 const birth_date = ref("");
+const errorMessage = ref("");
 
 const register = async () => {
-  await authStore.register(email.value, password.value, username.value, first_name.value, birth_date.value);
+  try {
+    await authStore.register(email.value, password.value, username.value, first_name.value, birth_date.value);
+    router.push("/login"); // Редирект только при успешной регистрации
+  } catch (error) {
+    errorMessage.value = error.response?.data?.message || "Ошибка регистрации. Проверьте правильность заполненных полей и попробуйте снова.";
+  }
 };
 
 const goToLogin = () => {
@@ -59,6 +68,8 @@ const goToLogin = () => {
   border-radius: 8px;
   text-align: center;
   width: 300px;
+  color: black;
+  opacity: 1 !important; /* Явно указываем, что текст не должен становиться прозрачным */
 }
 
 input {
@@ -82,6 +93,11 @@ button {
 
 button:hover {
   background: #0056b3;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
 }
 
 .switch-form {
