@@ -1,24 +1,30 @@
 <template>
-  <ThemeToggle />
-  <div class="page">
-    <div class="main" :class="{ 'main--collapsed': isCollapsed }">
-      <FeatherIcon
-        :key="isCollapsed ? 'chevron-right' : 'chevron-left'"
-        :name="isCollapsed ? 'chevron-right' : 'chevron-left'"
-        size="24"
-        class="collapse-btn"
-        @click="toggleCollapse"
-      />
-      <Search v-if="!isCollapsed" />
-      <div class="content-wrapper">
-        <div class="main__menu" v-if="!isCollapsed">
-          <MenuServer />
-          <MenuFriend />
-        </div>
-        <UserBar class="user-bar" :compact="isCollapsed" />
-      </div>
-    </div>
+  <div v-if="!authStore.token" class="auth-overlay">
     <router-view />
+  </div>
+  <div v-else>
+    <LogoutButton />
+    <ThemeToggle />
+    <div class="page">
+      <div class="main" :class="{ 'main--collapsed': isCollapsed }">
+        <FeatherIcon
+          :key="isCollapsed ? 'chevron-right' : 'chevron-left'"
+          :name="isCollapsed ? 'chevron-right' : 'chevron-left'"
+          size="24"
+          class="collapse-btn"
+          @click="toggleCollapse"
+        />
+        <Search v-if="!isCollapsed" />
+        <div class="content-wrapper">
+          <div class="main__menu" v-if="!isCollapsed">
+            <MenuServer />
+            <MenuFriend />
+          </div>
+          <UserBar class="user-bar" :compact="isCollapsed" />
+        </div>
+      </div>
+      <router-view />
+    </div>
   </div>
 </template>
 
@@ -30,9 +36,11 @@ import ThemeToggle from "@components/ThemeToggle.vue";
 import Search from "@components/Search.vue";
 import MenuFriend from "@components/MenuFriend/MenuFriend.vue";
 import FeatherIcon from "@components/Icon/FeatherIcon.vue";
+import LogoutButton from "@components/LogoutButton/LogoutButton.vue";
+import { useAuthStore } from "@stores/AuthStore";
 
 const isCollapsed = ref(false);
-
+const authStore = useAuthStore();
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value;
 };
@@ -97,5 +105,17 @@ const toggleCollapse = () => {
   &:hover {
     background: var(--border);
   }
+}
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 </style>
