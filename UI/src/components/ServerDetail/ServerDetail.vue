@@ -1,163 +1,118 @@
 <template>
-  <div class="server-container">
-    <!-- Шапка сервера -->
-    <div class="server-header">
-      <h2 class="server-title">{{ props.server.name }}</h2>
-      <div class="server-actions">
-        <button class="btn-create-channel" @click="createTestChannel">
-          <FeatherIcon name="plus" size="16" />
-          Создать тестовый канал
-        </button>
+  <div class="server-sidebar">
+    <div class="server-sidebar__server-header">
+      <h2 class="server-sidebar__server-header__label">Название сервера</h2>
+      <FeatherIcon
+        name="chevron-down"
+        size="20"
+        class="server-sidebar__server-header__chevron-down"
+      />
+    </div>
+    <!-- Текстовые каналы -->
+    <div class="server-sidebar__channel-section">
+      <div class="server-sidebar__section-header">
+        <span>Текстовые каналы</span>
+        <FeatherIcon name="plus" size="20" class="server-sidebar__add-icon" />
+      </div>
+      <div class="server-sidebar__channel-list">
+        <div class="channel">
+          <FeatherIcon name="hash" size="20" /> основной
+        </div>
+        <div class="channel"><FeatherIcon name="hash" size="20" /> музыка</div>
       </div>
     </div>
 
-    <!-- Список каналов -->
-    <div class="channels-list">
-      <div v-if="channels.length === 0" class="empty-state">
-        Каналы отсутствуют
+    <!-- Голосовые каналы -->
+    <div class="server-sidebar__channel-section">
+      <div class="server-sidebar__section-header">
+        <span>Голосовые каналы</span>
+        <FeatherIcon name="plus" size="20" class="server-sidebar__add-icon" />
       </div>
-      <div
-        v-for="channel in channels"
-        :key="channel.id"
-        class="channel-item"
-        :class="{ active: activeChannelId === channel.id }"
-        @click="selectChannel(channel.id)"
-      >
-        <span class="channel-prefix">#</span>
-        <span class="channel-name">{{ channel.name }}</span>
+      <div class="server-sidebar__channel-list">
+        <div class="channel">
+          <FeatherIcon name="volume-2" size="20" /> Общий
+        </div>
+        <div class="channel">
+          <FeatherIcon name="volume-2" size="20" /> Игровой
+        </div>
+        <div class="channel">
+          <FeatherIcon name="volume-2" size="20" /> Музыка
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
-
-interface Channel {
-  id: string;
-  name: string;
-}
-
-// Принимаем данные сервера через props
+import FeatherIcon from "@components/Icon/FeatherIcon.vue";
 const props = defineProps<{
   server: {
     id: string | string[];
-    name: string | string[];
-    image?: string;
   };
 }>();
-
-const channels = ref<Channel[]>([]);
-const activeChannelId = ref<string | null>(null);
-
-// Создание тестового канала
-const createTestChannel = () => {
-  const newChannelId = Date.now().toString();
-  const newChannel = {
-    id: newChannelId,
-    name: `канал-${channels.value.length + 1}`,
-  };
-
-  channels.value.push(newChannel);
-  selectChannel(newChannelId);
-};
-
-// Выбор канала
-const selectChannel = (channelId: string) => {
-  activeChannelId.value = channelId;
-  // Здесь можно добавить логику загрузки сообщений канала
-};
 </script>
 
-<style scoped lang="scss">
-.server-container {
-  background-color: var(--element-bg);
-  position: fixed;
-  top: 100px;
-  left: 500px;
+<style lang="scss">
+.server-sidebar {
+  width: 240px;
+  height: auto;
+  padding: 25px 0px 0px 25px;
+  border-left: 1px solid var(--element-bg);
+
+  &__server-header {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--element-bg);
+    margin-bottom: 15px;
+
+    &__chevron-down {
+      :hover {
+        cursor: pointer;
+      }
+    }
+    &__label {
+      flex: 1;
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+  &__add-icon {
+    :hover {
+      cursor: pointer;
+    }
+  }
+
+  &__channel-section {
+    margin-bottom: 20px;
+  }
+
+  &__section-header {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  &__channel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+.channel {
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-.server-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.server-title {
-  margin: 0;
-  font-size: var(--text-xl);
-  color: var(--text-primary);
-}
-
-.server-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-create-channel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background-color: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 4px;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
-  font-size: var(--text-m);
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--secondary);
-  }
 }
 
-.channels-list {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-}
-
-.empty-state {
-  padding: 16px;
-  text-align: center;
-  color: var(--text-primary);
-  opacity: 0.6;
-}
-
-.channel-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: var(--border);
-  }
-
-  &.active {
-    background-color: var(--accent);
-    color: white;
-  }
-}
-
-.channel-prefix {
-  margin-right: 6px;
-  font-weight: bold;
-}
-
-.channel-name {
-  font-size: var(--text-m);
+.channel:hover {
+  background: var(--element-bg);
 }
 </style>

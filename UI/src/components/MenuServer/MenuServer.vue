@@ -97,9 +97,7 @@ const createNewServer = (newServer: { name: string; image?: string }) => {
   display: flex;
   flex-direction: column;
   width: 72px;
-  height: 80vh;
   top: 10px;
-  //background-color: var(--element-bg);
   border-right: 1px solid var(--element-bg);
   padding: 8px 10px 8px 10px;
   overflow-y: auto;
