@@ -1,18 +1,34 @@
 <template>
-  <div v-if="!authStore.token" class="auth-overlay">
-    <div class="auth-container">
-      <h2>Вход</h2>
-      <form @submit.prevent="login">
-        <input v-model="email" type="email" placeholder="Email" required />
-        <input v-model="password" type="password" placeholder="Пароль" required />
-        <button type="submit">Войти</button>
+  <div v-if="!authStore.token" class="auth">
+    <div class="auth__container">
+      <h2 class="auth__title">Вход</h2>
+      <form class="auth__form" @submit.prevent="login">
+        <input
+          class="auth__input"
+          v-model="email"
+          type="email"
+          placeholder="Email"
+          required
+        />
+        <input
+          class="auth__input"
+          v-model="password"
+          type="password"
+          placeholder="Пароль"
+          required
+        />
+        <button class="auth__submit" type="submit">
+          Войти <FeatherIcon name="log-in" size="20" strokeWidth="2.5" />
+        </button>
       </form>
 
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="auth__error">{{ errorMessage }}</p>
 
-      <p class="switch-form">
-        Нет аккаунта? 
-        <button @click="goToRegister">Зарегистрироваться</button>
+      <p class="auth__switch">
+        Нет аккаунта?
+        <button class="auth__switch-btn" @click="goToRegister">
+          Зарегистрироваться
+        </button>
       </p>
     </div>
   </div>
@@ -20,9 +36,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAuthStore } from '@stores/AuthStore';
+import { useAuthStore } from "@stores/AuthStore";
 import { useRouter } from "vue-router";
-
+import FeatherIcon from "@components/Icon/FeatherIcon.vue";
 const authStore = useAuthStore();
 const router = useRouter();
 const email = ref("");
@@ -32,79 +48,116 @@ const errorMessage = ref("");
 const login = async () => {
   try {
     await authStore.login(email.value, password.value);
-  } catch (error) {
-    errorMessage.value = error.response?.data?.message || "Ошибка авторизации. Неверные почта/пароль.";
+    router.push({
+      path: "/home",
+    });
+  } catch (error: any) {
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Ошибка авторизации. Неверные почта/пароль.";
   }
 };
 
 const goToRegister = () => {
-  router.push("/auth/register");
+  router.push({
+    path: "/auth/register",
+  });
 };
 </script>
 
-<style scoped>
-.auth-overlay {
+<style lang="scss" scoped>
+.auth {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background-color: var(--bg-primary);
   display: flex;
   justify-content: center;
   align-items: center;
-}
 
-.auth-container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  width: 300px;
-  color: black;
-  opacity: 1 !important; /* Явно указываем, что текст не должен становиться прозрачным */
-}
+  &__container {
+    background-color: var(--element-bg);
+    padding: 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
 
-input {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+  &__title {
+    margin: 0 0 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+  }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-button:hover {
-  background: #0056b3;
-}
+  &__input {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: none;
+    color: var(--text-primary);
 
-.error-message {
-  color: red;
-  margin-top: 10px;
-}
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
 
-.switch-form {
-  margin-top: 10px;
-}
+  &__submit {
+    padding: 12px;
+    width: max-content;
+    background: none;
+    color: var(--text-primary);
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0 auto;
 
-.switch-form button {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-}
+    &:hover {
+      color: var(--text-secondary);
+    }
+  }
 
-.switch-form button:hover {
-  text-decoration: underline;
+  &__error {
+    margin: 16px 0 0;
+    color: var(--error);
+    font-size: 14px;
+    text-align: center;
+  }
+
+  &__switch {
+    margin: 20px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  &__switch-btn {
+    display: inline;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>

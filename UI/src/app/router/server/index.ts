@@ -9,5 +9,6 @@ export default {
       component: () => import("@pages/Server/Server.vue"),
       props: true
     },
+    
   ],
 };

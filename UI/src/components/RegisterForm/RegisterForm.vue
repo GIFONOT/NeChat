@@ -1,21 +1,54 @@
 <template>
-  <div class="auth-overlay">
-    <div class="auth-container">
-      <h2>Регистрация</h2>
-      <form @submit.prevent="register">
-        <input v-model="email" type="email" placeholder="Email" required />
-        <input v-model="password" type="password" placeholder="Пароль" required />
-        <input v-model="username" type="text" placeholder="Логин пользователя" required />
-        <input v-model="first_name" type="text" placeholder="Имя пользователя" required />
-        <input v-model="birth_date" type="date" placeholder="Дата рождения (гггг.мм.дд)" required />
-        <button type="submit">Зарегистрироваться</button>
+  <div class="auth">
+    <div class="auth__container">
+      <h2 class="auth__title">Регистрация</h2>
+      <form class="auth__form" @submit.prevent="register">
+        <input
+          class="auth__input"
+          v-model="email"
+          type="email"
+          placeholder="Email"
+          required
+        />
+        <input
+          class="auth__input"
+          v-model="password"
+          type="password"
+          placeholder="Пароль"
+          required
+        />
+        <input
+          class="auth__input"
+          v-model="username"
+          type="text"
+          placeholder="Логин пользователя"
+          required
+        />
+        <input
+          class="auth__input"
+          v-model="first_name"
+          type="text"
+          placeholder="Имя пользователя"
+          required
+        />
+        <input
+          class="auth__input"
+          v-model="birth_date"
+          type="date"
+          placeholder="Дата рождения"
+          required
+        />
+        <button class="auth__submit" type="submit">
+          Зарегистрироваться
+          <FeatherIcon name="user-plus" size="20" strokeWidth="2.5" />
+        </button>
       </form>
 
-      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <p v-if="errorMessage" class="auth__error">{{ errorMessage }}</p>
 
-      <p class="switch-form">
+      <p class="auth__switch">
         Есть аккаунт?
-        <button @click="goToLogin">Войти</button>
+        <button class="auth__switch-btn" @click="goToLogin">Войти</button>
       </p>
     </div>
   </div>
@@ -23,8 +56,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useAuthStore } from '@stores/AuthStore';
+import { useAuthStore } from "@stores/AuthStore";
 import { useRouter } from "vue-router";
+import FeatherIcon from "@components/Icon/FeatherIcon.vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -32,15 +66,23 @@ const email = ref("");
 const password = ref("");
 const username = ref("");
 const first_name = ref("");
-const birth_date = ref("");
+const birth_date = ref();
 const errorMessage = ref("");
 
 const register = async () => {
   try {
-    await authStore.register(email.value, password.value, username.value, first_name.value, birth_date.value);
-    router.push("/login"); // Редирект только при успешной регистрации
-  } catch (error) {
-    errorMessage.value = error.response?.data?.message || "Ошибка регистрации. Проверьте правильность заполненных полей и попробуйте снова.";
+    await authStore.register(
+      email.value,
+      password.value,
+      username.value,
+      first_name.value,
+      birth_date.value
+    );
+    router.push("/login");
+  } catch (error: any) {
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Ошибка регистрации. Проверьте правильность заполненных полей и попробуйте снова.";
   }
 };
 
@@ -49,69 +91,103 @@ const goToLogin = () => {
 };
 </script>
 
-<style scoped>
-.auth-overlay {
+<style lang="scss" scoped>
+.auth {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background-color: var(--bg-primary);
   display: flex;
   justify-content: center;
   align-items: center;
-}
 
-.auth-container {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  width: 300px;
-  color: black;
-  opacity: 1 !important; /* Явно указываем, что текст не должен становиться прозрачным */
-}
+  &__container {
+    background-color: var(--element-bg);
+    padding: 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
 
-input {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+  &__title {
+    margin: 0 0 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+  }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-button:hover {
-  background: #0056b3;
-}
+  &__input {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: none;
+    color: var(--text-primary);
 
-.error-message {
-  color: red;
-  margin-top: 10px;
-}
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
 
-.switch-form {
-  margin-top: 10px;
-}
+  &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    width: max-content;
+    margin: 0 auto;
+    background: none;
+    color: var(--text-primary);
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
 
-.switch-form button {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-}
+    &:hover {
+      color: var(--text-secondary);
+    }
+  }
 
-.switch-form button:hover {
-  text-decoration: underline;
+  &__error {
+    margin: 16px 0 0;
+    color: var(--error);
+    font-size: 14px;
+    text-align: center;
+  }
+
+  &__switch {
+    margin: 20px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  &__switch-btn {
+    display: inline;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>

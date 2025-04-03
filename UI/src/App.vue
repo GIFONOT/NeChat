@@ -1,10 +1,10 @@
 <template>
+  <ThemeToggle />
   <div v-if="!authStore.token" class="auth-overlay">
     <router-view />
   </div>
   <div v-else>
     <LogoutButton />
-    <ThemeToggle />
     <div class="page">
       <div class="main" :class="{ 'main--collapsed': isCollapsed }">
         <FeatherIcon
@@ -105,17 +105,5 @@ const toggleCollapse = () => {
   &:hover {
     background: var(--border);
   }
-}
-.auth-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
 }
 </style>

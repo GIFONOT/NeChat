@@ -1,20 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router' 
-import home from "./home/index"
+import { createRouter, createWebHistory } from "vue-router";
+import type { RouteRecordRaw } from "vue-router";
+import server from "./server/index";
 import { useAuthStore } from "@stores/AuthStore";
- 
+import auth from "./auth/index";
+
 export const routes: RouteRecordRaw[] = [
-  home,
-  {
-    path: "/auth/login",
-    name: "login",
-    component: () => import("@components/LoginForm/LoginForm.vue"),
-  },
-  {
-    path: "/auth/register",
-    name: "register",
-    component: () => import("@components/RegisterForm/RegisterForm.vue"),
-  },
+  server,
+  auth,
 ];
 
 const router = createRouter({
@@ -25,9 +17,13 @@ const router = createRouter({
 // Глобальная проверка перед каждым роутом
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
-  
-  if (!authStore.token && to.path !== "/auth/login" && to.path !== "/auth/register") {
-    next("/auth/login"); // Перенаправление на логин, если нет токена
+
+  if (
+    !authStore.token &&
+    to.path !== "/auth/login" &&
+    to.path !== "/auth/register"
+  ) {
+    next("/auth/login");
   } else {
     next();
   }

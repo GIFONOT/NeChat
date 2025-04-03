@@ -1,17 +1,19 @@
 <template>
-  <button @click="logout" class="logout-button">Выйти</button>
+  <button @click="logout" class="logout-button">
+    <FeatherIcon name="log-out" size="22" strokeWidth="2.5" />
+  </button>
 </template>
 
 <script setup lang="ts">
 import { useAuthStore } from "@stores/AuthStore";
 import { useRouter } from "vue-router";
-
+import FeatherIcon from "@components/Icon/FeatherIcon.vue"
 const authStore = useAuthStore();
 const router = useRouter();
 
 const logout = () => {
-  authStore.logout(); // Вызываем метод выхода
-  router.push("/auth/login"); // Перенаправляем на страницу входа
+  authStore.logout();
+  router.push("/auth/login");
 };
 </script>
 
@@ -20,17 +22,15 @@ const logout = () => {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  padding: 10px 15px;
-  background-color: #dc3545;
-  color: white;
+  padding: 0;
+  background: none;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s;
-  z-index: 1001;
+  color: var(--text-primery);
+  transition: all 0.2s;
 }
 
 .logout-button:hover {
-  background-color: #c82333;
+  color: var(--text-secondary);
 }
 </style>
