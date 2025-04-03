@@ -7,6 +7,11 @@ import auth from "./auth/index";
 export const routes: RouteRecordRaw[] = [
   server,
   auth,
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    redirect: "/home",
+  },
 ];
 
 const router = createRouter({
