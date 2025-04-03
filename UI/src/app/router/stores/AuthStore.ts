@@ -4,12 +4,15 @@ import apiClient from "@/api";
 interface User {
   id: number;
   email: string;
+  username: string;
 }
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: localStorage.getItem("token") || "",
-    user: null as User | null,
+    user: localStorage.getItem("user") 
+      ? JSON.parse(localStorage.getItem("user") as string) 
+      : null as User | null,
   }),
 
   actions: {
@@ -22,8 +25,15 @@ export const useAuthStore = defineStore("auth", {
         }
 
         this.token = response.data.access_token;
-        this.user = { id: response.data.user_id, email };
+        this.user = { 
+          id: response.data.user_id, 
+          email,
+          username: response.data.username,
+        };
+
         localStorage.setItem("token", this.token);
+        localStorage.setItem("user", JSON.stringify(this.user));
+
         console.log("Успешный вход:", this.user);
       } catch (error) {
         console.error("Ошибка входа:", error);
@@ -49,6 +59,8 @@ export const useAuthStore = defineStore("auth", {
           headers: { Authorization: `Bearer ${this.token}` },
         });
         this.user = response.data;
+
+        localStorage.setItem("user", JSON.stringify(this.user)); // Обновляем user
         console.log("Профиль загружен:", this.user);
       } catch (error) {
         console.error("Ошибка получения профиля:", error);
@@ -60,6 +72,7 @@ export const useAuthStore = defineStore("auth", {
       this.token = "";
       this.user = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       console.log("Вышел из системы");
     },
   },
