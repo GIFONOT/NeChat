@@ -12,15 +12,15 @@
 
     <div class="servers-sidebar__list">
       <div
-        v-for="server in servers"
+        v-for="server in userServers"
         :key="server.id"
         class="server-card"
         :class="{ 'server-card--active': activeServerId === server.id }"
         @click="selectServer(server.id)"
       >
         <img
-          v-if="server.image"
-          :src="server.image"
+          v-if="server.image_url"
+          :src="server.image_url"
           class="server-card__image"
         />
         <div v-else class="server-card__placeholder">
@@ -28,48 +28,25 @@
         </div>
       </div>
     </div>
-    <CreateServerModal 
-      ref="modalRef" 
-      @create="createNewServer"
-    />
+    <CreateServerModal ref="modalRef" @create="handleServerCreated" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import { useRouter } from "vue-router";
 import CreateServerModal from "@/components/CreateServerModal.vue";
-import Search from "@components/Search.vue"
-
-interface Server {
-  id: string;
-  name: string;
-  image?: string;
-}
-
-// Запрос к серверу
-const servers = ref<Server[]>([
-  {
-    id: "1",
-    name: "Основной",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs3Nv1dUHgTVa6Ic6VI-NH3BTQixaZmoLItQ&s",
-  },
-  {
-    id: "2",
-    name: "СИгры",
-  },
-  { id: "3", name: "ВРазработка" },
-  {
-    id: "4",
-    name: "ОМузыка",
-  },
-]);
+import apiClient from "@/api";
 
 const activeServerId = ref("");
 const router = useRouter();
+const userServers = ref<Server[]>([]);
 
+const modalRef = ref<InstanceType<typeof CreateServerModal> | null>(null);
+const addServer = () => {
+  modalRef.value?.openModal();
+};
 const selectServer = (id: string) => {
   activeServerId.value = id;
   router.push({
@@ -77,19 +54,24 @@ const selectServer = (id: string) => {
     params: { id },
   });
 };
-// Запрос к серверу (можно вынести управление в класс pinia)
-const modalRef = ref<InstanceType<typeof CreateServerModal> | null>(null);
-const addServer = () => {
-  modalRef.value?.openModal();
+
+const fetchUserServers = async () => {
+  try {
+    const response = await apiClient.get<Server[]>("/servers/my-servers", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    userServers.value = response.data;
+  } catch (error) {
+    console.error("Ошибка загрузки серверов:", error);
+    userServers.value = [];
+  }
 };
-const createNewServer = (newServer: { name: string; image?: string }) => {
-  const newId = (servers.value.length + 1).toString();
-  servers.value.push({
-    id: newId,
-    name: newServer.name,
-    image: newServer.image
-  });
-};
+const handleServerCreated = () => {
+  fetchUserServers();
+}
+onMounted(async () => await fetchUserServers());
 </script>
 
 <style lang="scss" scoped>
@@ -101,7 +83,7 @@ const createNewServer = (newServer: { name: string; image?: string }) => {
   border-right: 1px solid var(--element-bg);
   padding: 8px 10px 8px 10px;
   overflow-y: auto;
-  scrollbar-width: none; 
+  scrollbar-width: none;
 
   &__header {
     display: flex;

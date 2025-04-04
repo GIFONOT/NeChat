@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
+import apiClient from "@/api";
 
 const emit = defineEmits(["create", "close"]);
 
@@ -103,14 +104,26 @@ const handleImageUpload = (event: Event) => {
   }
 };
 
-const createServer = () => {
-  const newServer = {
-    name: serverName.value,
-    image: previewImage.value,
-    file: selectedImage.value,
-  };
-  emit("create", newServer);
-  closeModal();
+const createServer = async () => {
+  try {
+    const response = await apiClient.post("/servers/",
+      {
+        name: serverName.value,
+        //description: "", // Опционально
+        is_public: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    emit("create", response.data);
+    closeModal();
+  } catch (error) {
+    console.error("Ошибка создания сервера:", error);
+  }
 };
 
 defineExpose({ openModal });
@@ -132,7 +145,7 @@ defineExpose({ openModal });
 
 .modal-content {
   background-color: var(--element-bg);
-  border-radius: 8px;
+  border-radius: 12px;
   width: 100%;
   max-width: 450px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
