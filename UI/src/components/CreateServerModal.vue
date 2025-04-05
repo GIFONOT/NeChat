@@ -40,6 +40,7 @@
             <button @click="triggerFileInput" class="form-group__upload-btn">
               {{ previewImage ? "Изменить" : "Выбрать" }}
             </button>
+            <span class="form-group__info">max 1MB</span>
           </div>
         </div>
       </div>
@@ -70,6 +71,8 @@ const isOpen = ref(false);
 const serverName = ref("");
 const previewImage = ref("");
 const selectedImage = ref<File | null>(null);
+const imageUrl = ref("");
+const MAX_FILE_SIZE = 1024 * 1024;
 
 const openModal = () => {
   isOpen.value = true;
@@ -86,16 +89,24 @@ const resetForm = () => {
   selectedImage.value = null;
 };
 
-// Запрос к серверу
 const triggerFileInput = () => {
   const fileInput = document.querySelector(".file-input") as HTMLInputElement;
   fileInput.click();
 };
-
 const handleImageUpload = (event: Event) => {
   const input = event.target as HTMLInputElement;
   if (input.files && input.files[0]) {
+
+
+    if (input.files[0].size > MAX_FILE_SIZE) {
+      alert(
+        `Файл слишком большой. Максимальный размер: 1MB`
+      );
+      input.value = "";
+      return;
+    }
     selectedImage.value = input.files[0];
+    console.log(selectedImage.value);
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImage.value = e.target?.result as string;
@@ -104,13 +115,38 @@ const handleImageUpload = (event: Event) => {
   }
 };
 
+// Запрос к серверу
+const uploadImage = async () => {
+  if (!selectedImage.value) return null;
+
+  const formData = new FormData();
+  formData.append("file", selectedImage.value);
+
+  try {
+    const response = await apiClient.post("/servers/upload-image", formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    console.log(response.data.url);
+    imageUrl.value = response.data.url;
+  } catch (error) {
+    console.error("Ошибка загрузки:", error);
+    return null;
+  }
+};
+
 const createServer = async () => {
   try {
-    const response = await apiClient.post("/servers/",
+    await uploadImage();
+    const response = await apiClient.post(
+      "/servers/",
       {
         name: serverName.value,
-        //description: "", // Опционально
         is_public: true,
+        image_url: imageUrl.value || "",
       },
       {
         headers: {
@@ -215,11 +251,15 @@ defineExpose({ openModal });
   display: none;
 }
 .form-group {
+  label {
+      display: block;
+      font-size: var(--text-lx);
+    }
   &__image-upload {
     display: flex;
     align-items: center;
     margin-top: 10px;
-    gap: 16px;
+    gap: 10px;
   }
 
   &__image-preview {
@@ -252,6 +292,10 @@ defineExpose({ openModal });
       opacity: 0.8;
     }
   }
+  &__info{
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
 }
 
 .modal-footer {
@@ -281,7 +325,7 @@ defineExpose({ openModal });
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    color: white;
+    color: var(--text-primary);
     font-weight: 500;
 
     &:hover {
