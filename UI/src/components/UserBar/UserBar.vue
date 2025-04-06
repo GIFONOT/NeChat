@@ -27,16 +27,27 @@
         name="settings"
         size="24"
         strokeWidth="2.5"
+        @click="openProfileModal"
       />
     </div>
   </div>
+
+  <UserProfile ref="profileModalRef" />
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
-import { UserStores } from "@stores/UserStore";
+import UserProfile from "@/components/UserProfile/UserProfile.vue";
+import { useUserStore } from "@stores/UserStore";
 
-const user = UserStores();
+const user = useUserStore();
+const profileModalRef = ref<InstanceType<typeof UserProfile> | null>(null);
+
+const openProfileModal = () => {
+  profileModalRef.value?.openModal();
+};
+
 const props = defineProps({
   compact: Boolean,
 });
