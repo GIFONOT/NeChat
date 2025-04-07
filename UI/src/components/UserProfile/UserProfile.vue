@@ -13,6 +13,7 @@
           <div>
             <label for="username">Логин</label>
             <input id="username" v-model="username" type="text" />
+            <span v-if="usernameError" class="form-error">{{ usernameError }}</span>
           </div>
           <button @click="updateUsername">Обновить</button>
         </div>
@@ -29,6 +30,7 @@
           <div>
             <label for="email">Email</label>
             <input id="email" v-model="email" type="email" />
+            <span v-if="emailError" class="form-error">{{ emailError }}</span>
           </div>
           <button @click="updateEmail">Обновить</button>
         </div>
@@ -37,6 +39,7 @@
           <div>
             <label for="password">Новый пароль</label>
             <input id="password" v-model="password" type="password" />
+            <span v-if="passwordError" class="form-error">{{ passwordError }}</span>
           </div>
           <button @click="updatePassword">Обновить</button>
         </div>
@@ -83,6 +86,9 @@ const username = ref("");
 const firstName = ref("");
 const email = ref("");
 const password = ref("");
+const usernameError = ref("");
+const emailError = ref("");
+const passwordError = ref("");
 
 const openModal = (user: any) => {
   username.value = user?.username || "";
@@ -114,18 +120,47 @@ const updateField = async (url: string, data: object) => {
 };
 
 const updateUsername = async () => {
+  usernameError.value = "";
   try {
-    const response = await updateField("/profile/update_username", { username: username.value });
-
+    await updateField("/profile/update_username", { username: username.value });
     userStore.updateUsername(username.value);
-  } catch (error) {
-    console.error("Ошибка обновления username:", error);
+  } catch (error: any) {
+    if (error.response?.status === 400 && error.response.data?.detail === "Имя пользователя уже используется") {
+      usernameError.value = "Этот логин уже занят";
+    } else {
+      usernameError.value = "Произошла ошибка при обновлении логина. Попробуйте другой логин";
+    }
   }
 };
 const updateFirstName = () => updateField("/profile/update_first_name", { first_name: firstName.value });
-const updateEmail = () => updateField("/profile/update_email", { email: email.value });
-const updatePassword = () => {
-  if (password.value.trim()) updateField("/profile/update_password", { password: password.value });
+const updateEmail = async () => {
+  emailError.value = "";
+  try {
+    await updateField("/profile/update_email", { email: email.value });
+  } catch (error: any) {
+    if (error.response?.status === 400) {
+      const detail = error.response.data?.detail;
+      if (detail === "Этот email уже используется") {
+        emailError.value = "Этот email уже используется";
+      } else if (detail === "Invalid email format") {
+        emailError.value = "Введите корректный email";
+      } else {
+        emailError.value = "Ошибка при обновлении email";
+      }
+    }
+  }
+};
+const updatePassword = async () => {
+  passwordError.value = "";
+  if (password.value.trim().length < 6) {
+    passwordError.value = "Пароль должен быть не короче 6 символов";
+    return;
+  }
+  try {
+    await updateField("/profile/update_password", { password: password.value });
+  } catch (error) {
+    passwordError.value = "Ошибка при обновлении пароля";
+  }
 };
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -300,5 +335,12 @@ defineExpose({ openModal });
     font-size: 14px;
     color: var(--text-secondary);
   }
+}
+
+.form-error {
+  color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
 }
 </style>
