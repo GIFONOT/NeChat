@@ -11,7 +11,7 @@
       <div class="modal-body">
         <div class="modal-body__form-group with-button">
           <div>
-            <label for="username">Имя пользователя</label>
+            <label for="username">Логин</label>
             <input id="username" v-model="username" type="text" />
           </div>
           <button @click="updateUsername">Обновить</button>
@@ -40,6 +40,31 @@
           </div>
           <button @click="updatePassword">Обновить</button>
         </div>
+        <div class="form-group">
+          <label>Выбор нового аватара</label>
+          <div class="form-group__image-upload">
+            <img
+              v-if="previewImage"
+              :src="previewImage"
+              class="form-group__image-preview"
+              alt="Preview"
+            />
+            <div v-else class="form-group__upload-placeholder">
+              <FeatherIcon name="image" size="24" />
+            </div>
+            <input
+              type="file"
+              ref="fileInput"
+              accept="image/*"
+              @change="handleImageUpload"
+              class="file-input-hidden"
+            />
+            <button @click="triggerFileInput" class="form-group__upload-btn">
+              {{ previewImage ? "Изменить" : "Выбрать" }}
+            </button>
+            <span class="form-group__info">max 1MB</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -49,9 +74,10 @@
 import { ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import apiClient from "@/api";
+import { useUserStore } from "@stores/UserStore";
 
+const userStore = useUserStore();
 const emit = defineEmits(["close"]);
-
 const isOpen = ref(false);
 const username = ref("");
 const firstName = ref("");
@@ -90,6 +116,8 @@ const updateField = async (url: string, data: object) => {
 const updateUsername = async () => {
   try {
     const response = await updateField("/profile/update_username", { username: username.value });
+
+    userStore.updateUsername(username.value);
   } catch (error) {
     console.error("Ошибка обновления username:", error);
   }
@@ -98,6 +126,12 @@ const updateFirstName = () => updateField("/profile/update_first_name", { first_
 const updateEmail = () => updateField("/profile/update_email", { email: email.value });
 const updatePassword = () => {
   if (password.value.trim()) updateField("/profile/update_password", { password: password.value });
+};
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
 };
 
 defineExpose({ openModal });
@@ -188,7 +222,7 @@ defineExpose({ openModal });
 
     &.with-button {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       align-items: flex-end;
 
       > div {
@@ -196,6 +230,9 @@ defineExpose({ openModal });
       }
 
       button {
+        flex-shrink: 0;
+        margin-left: 14px;
+        margin-bottom: 3px;
         padding: 8px 14px;
         border-radius: 4px;
         border: none;
@@ -210,6 +247,58 @@ defineExpose({ openModal });
         }
       }
     }
+  }
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.form-group {
+  label {
+      display: block;
+      font-size: var(--text-lx);
+    }
+  &__image-upload {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  &__image-preview {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+  }
+
+  &__upload-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__upload-btn {
+    background-color: var(--border);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+  &__info{
+    font-size: 14px;
+    color: var(--text-secondary);
   }
 }
 </style>
