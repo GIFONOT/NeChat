@@ -14,6 +14,7 @@
             <label for="username">Логин</label>
             <input id="username" v-model="username" type="text" />
             <span v-if="usernameError" class="form-error">{{ usernameError }}</span>
+            <span v-if="usernameSuccess" class="form-success">{{ usernameSuccess }}</span>
           </div>
           <button @click="updateUsername">Обновить</button>
         </div>
@@ -22,6 +23,8 @@
           <div>
             <label for="firstName">Имя</label>
             <input id="firstName" v-model="firstName" type="text" />
+            <span v-if="firstNameError" class="form-error">{{ firstNameError }}</span>
+            <span v-if="firstNameSuccess" class="form-success">{{ firstNameSuccess }}</span>
           </div>
           <button @click="updateFirstName">Обновить</button>
         </div>
@@ -31,6 +34,7 @@
             <label for="email">Email</label>
             <input id="email" v-model="email" type="email" />
             <span v-if="emailError" class="form-error">{{ emailError }}</span>
+            <span v-if="emailSuccess" class="form-success">{{ emailSuccess }}</span>
           </div>
           <button @click="updateEmail">Обновить</button>
         </div>
@@ -40,6 +44,7 @@
             <label for="password">Новый пароль</label>
             <input id="password" v-model="password" type="password" />
             <span v-if="passwordError" class="form-error">{{ passwordError }}</span>
+            <span v-if="passwordSuccess" class="form-success">{{ passwordSuccess }}</span>
           </div>
           <button @click="updatePassword">Обновить</button>
         </div>
@@ -89,8 +94,25 @@ const password = ref("");
 const usernameError = ref("");
 const emailError = ref("");
 const passwordError = ref("");
+const firstNameError = ref("");
+const avatarError = ref("");
+const usernameSuccess = ref("");
+const emailSuccess = ref("");
+const passwordSuccess = ref("");
+const firstNameSuccess = ref("");
+const avatarSuccess = ref("");
+
+const resetMessages = () => {
+  usernameError.value = "";
+  usernameSuccess.value = "";
+  emailError.value = "";
+  emailSuccess.value = "";
+  passwordError.value = "";
+  passwordSuccess.value = "";
+};
 
 const openModal = (user: any) => {
+  resetMessages();
   username.value = user?.username || "";
   firstName.value = user?.first_name || "";
   email.value = user?.email || "";
@@ -121,9 +143,11 @@ const updateField = async (url: string, data: object) => {
 
 const updateUsername = async () => {
   usernameError.value = "";
+  usernameSuccess.value = "";
   try {
     await updateField("/profile/update_username", { username: username.value });
     userStore.updateUsername(username.value);
+    usernameSuccess.value = "Логин успешно обновлён";
   } catch (error: any) {
     if (error.response?.status === 400 && error.response.data?.detail === "Имя пользователя уже используется") {
       usernameError.value = "Этот логин уже занят";
@@ -132,11 +156,22 @@ const updateUsername = async () => {
     }
   }
 };
-const updateFirstName = () => updateField("/profile/update_first_name", { first_name: firstName.value });
+const updateFirstName = async () => {
+  firstNameError.value = "";
+  firstNameSuccess.value = "";
+  try {
+    await updateField("/profile/update_first_name", { first_name: firstName.value });
+    firstNameSuccess.value = "Имя успешно обновлено";
+  } catch (error: any) {
+    firstNameError.value = "Произошла ошибка при обновлении имени";
+  }
+};
 const updateEmail = async () => {
   emailError.value = "";
+  emailSuccess.value = "";
   try {
     await updateField("/profile/update_email", { email: email.value });
+    emailSuccess.value = "Email успешно обновлён";
   } catch (error: any) {
     if (error.response?.status === 400) {
       const detail = error.response.data?.detail;
@@ -152,12 +187,14 @@ const updateEmail = async () => {
 };
 const updatePassword = async () => {
   passwordError.value = "";
+  passwordSuccess.value = "";
   if (password.value.trim().length < 6) {
     passwordError.value = "Пароль должен быть не короче 6 символов";
     return;
   }
   try {
     await updateField("/profile/update_password", { password: password.value });
+    passwordSuccess.value = "Пароль успешно обновлён";
   } catch (error) {
     passwordError.value = "Ошибка при обновлении пароля";
   }
@@ -339,6 +376,13 @@ defineExpose({ openModal });
 
 .form-error {
   color: #ff4d4f;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-success {
+  color: #4caf50;
   font-size: 14px;
   margin-top: 4px;
   display: block;
