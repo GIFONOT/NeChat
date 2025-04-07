@@ -3,7 +3,7 @@
     <div class="UserBar__avatar" @click="toggleCompactIfCollapsed">
       <img v-if="user.image" :src="user.image" class="UserBar__image" />
       <span v-if="!compact" class="UserBar__name">
-        {{ user.name }}
+        {{ user.username }}
       </span>
     </div>
 
@@ -27,16 +27,30 @@
         name="settings"
         size="24"
         strokeWidth="2.5"
+        @click="openProfileModal"
       />
     </div>
   </div>
+
+  <UserProfile ref="profileModalRef" />
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
-import { UserStores } from "@stores/UserStore";
+import UserProfile from "@/components/UserProfile/UserProfile.vue";
+import { useUserStore } from "@stores/UserStore";
 
-const user = UserStores();
+const userStore = useUserStore();
+
+const user = computed(() => userStore.user); // теперь user — это данные пользователя
+const mic = computed(() => userStore.mic);
+const profileModalRef = ref<InstanceType<typeof UserProfile> | null>(null);
+
+const openProfileModal = () => {
+  profileModalRef.value?.openModal();
+};
+
 const props = defineProps({
   compact: Boolean,
 });

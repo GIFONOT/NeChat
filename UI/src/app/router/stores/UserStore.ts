@@ -1,10 +1,34 @@
+// @/stores/UserStore.ts
 import { defineStore } from "pinia";
 
-export const UserStores = defineStore("user", {
+interface User {
+  id: number;
+  email: string;
+  username: string;
+  image: string;
+}
+
+export const useUserStore = defineStore("user", {
   state: () => ({
-    name: "Ame",
+    user: localStorage.getItem("user") 
+      ? JSON.parse(localStorage.getItem("user") as string) 
+      : null as User | null,
     mic: true,
-    image:
-      "https://sun9-11.userapi.com/impg/tPC_WVw9-lSqlypnpBxySZm9eloqJBL9di2tSQ/j6onL53z90o.jpg?size=456x492&quality=95&sign=49455024b494d4189109706212579dfe&type=album",
   }),
+
+  actions: {
+    updateUsername(username: string) {
+      if (this.user) {
+        this.user.username = username;
+        localStorage.setItem("user", JSON.stringify(this.user));
+      }
+    },
+  
+    updateImage(image: string) {
+      if (this.user) {
+        this.user.image = image;
+        localStorage.setItem("user", JSON.stringify(this.user));
+      }
+    }
+  }
 });
