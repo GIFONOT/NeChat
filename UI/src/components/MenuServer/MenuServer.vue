@@ -11,6 +11,7 @@
     </div>
 
     <div class="servers-sidebar__list">
+      <Loading :isLoading="isLoading" />
       <div
         v-for="server in userServers"
         :key="server.id"
@@ -35,13 +36,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
-import { useRouter } from "vue-router";
-import CreateServerModal from "@/components/CreateServerModal.vue";
+import { useRouter, useRoute } from "vue-router";
+import CreateServerModal from "@components/CreateServerModal/CreateServerModal.vue";
+import Loading from "@/components/Loading.vue";
 import apiClient from "@/api";
 
 const activeServerId = ref("");
 const router = useRouter();
+const rout = useRoute();
 const userServers = ref<Server[]>([]);
+const isLoading = ref(true);
 
 const modalRef = ref<InstanceType<typeof CreateServerModal> | null>(null);
 const addServer = () => {
@@ -56,6 +60,7 @@ const selectServer = (id: string) => {
 };
 
 const fetchUserServers = async () => {
+  isLoading.value = true;
   try {
     const response = await apiClient.get<Server[]>("/servers/my-servers", {
       headers: {
@@ -67,11 +72,19 @@ const fetchUserServers = async () => {
     console.error("Ошибка загрузки серверов:", error);
     userServers.value = [];
   }
+  finally{
+    isLoading.value = false;
+  }
 };
 const handleServerCreated = () => {
   fetchUserServers();
-}
-onMounted(async () => await fetchUserServers());
+};
+onMounted(async () => {
+  await fetchUserServers();
+  if (rout.params.id) {
+    activeServerId.value = rout.params.id as string;
+  }
+});
 </script>
 
 <style lang="scss" scoped>

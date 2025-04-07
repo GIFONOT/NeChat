@@ -41,20 +41,6 @@ interface Friend {
 }
 
 const friends = ref<Friend[]>([
-  {
-    id: "1",
-    name: "Сон Джин Ву",
-    image:
-      "https://pm1.aminoapps.com/7250/e1903729b7a7410472dd8950394faa54a19433fbr1-720-709v2_00.jpg",
-  },
-  {
-    id: "2",
-    name: "Алексей Смирнов",
-  },
-  {
-    id: "3",
-    name: "Мария Иванова",
-  },
 ]);
 
 const activeFriendId = ref("");
