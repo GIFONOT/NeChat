@@ -117,6 +117,8 @@ const resetMessages = () => {
   emailSuccess.value = "";
   passwordError.value = "";
   passwordSuccess.value = "";
+  firstNameSuccess.value = "";
+  firstNameError.value = "";
 };
 
 const openModal = (user: any) => {
@@ -179,20 +181,20 @@ const updateEmail = async () => {
   emailSuccess.value = "";
   try {
     await updateField("/profile/update_email", { email: email.value });
-    emailSuccess.value = "Email успешно обновлён";
+    emailSuccess.value = "Email успешно обновлён. Подтвердите смену почты при помощи высланного вам письма";
   } catch (error: any) {
-    if (error.response?.status === 400) {
-      const detail = error.response.data?.detail;
-      if (detail === "Этот email уже используется") {
+    const detail = error.response.data?.detail;
+    if (detail === "Этот email уже используется") {
         emailError.value = "Этот email уже используется";
-      } else if (detail === "Invalid email format") {
+      } 
+    else if (error.response?.status === 422) {
         emailError.value = "Введите корректный email";
-      } else {
+      } 
+    else {
         emailError.value = "Ошибка при обновлении email";
       }
     }
-  }
-};
+  };
 const updatePassword = async () => {
   passwordError.value = "";
   passwordSuccess.value = "";
