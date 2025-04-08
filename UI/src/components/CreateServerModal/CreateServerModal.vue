@@ -326,7 +326,7 @@ defineExpose({ openModal });
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    color: var(--text-primary);
+    color: rgb(212, 211, 211);
     font-weight: 500;
 
     &:hover {
@@ -335,6 +335,7 @@ defineExpose({ openModal });
 
     &:disabled {
       background-color: var(--border);
+      color: var(--text-primary);
       cursor: not-allowed;
     }
   }

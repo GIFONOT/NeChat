@@ -12,41 +12,49 @@
         <div class="modal-body__form-group with-button">
           <div>
             <label for="username">Логин</label>
-            <input id="username" v-model="username" type="text" />
+            <div class="modal-body__inputMes">
+              <input id="username" v-model="username" type="text" />
+              <button @click="updateUsername">Обновить</button>
+            </div>
             <span v-if="usernameError" class="form-error">{{ usernameError }}</span>
             <span v-if="usernameSuccess" class="form-success">{{ usernameSuccess }}</span>
           </div>
-          <button @click="updateUsername">Обновить</button>
         </div>
 
         <div class="modal-body__form-group with-button">
           <div>
             <label for="firstName">Имя</label>
-            <input id="firstName" v-model="firstName" type="text" />
+            <div class="modal-body__inputMes">
+              <input id="firstName" v-model="firstName" type="text" />
+              <button @click="updateFirstName">Обновить</button>
+            </div>
             <span v-if="firstNameError" class="form-error">{{ firstNameError }}</span>
             <span v-if="firstNameSuccess" class="form-success">{{ firstNameSuccess }}</span>
           </div>
-          <button @click="updateFirstName">Обновить</button>
         </div>
 
         <div class="modal-body__form-group with-button">
           <div>
             <label for="email">Email</label>
-            <input id="email" v-model="email" type="email" />
+            <div class="modal-body__inputMes">
+              <input id="email" v-model="email" type="email" />
+              <button @click="updateEmail">Обновить</button>
+            </div>
             <span v-if="emailError" class="form-error">{{ emailError }}</span>
             <span v-if="emailSuccess" class="form-success">{{ emailSuccess }}</span>
           </div>
-          <button @click="updateEmail">Обновить</button>
         </div>
 
         <div class="modal-body__form-group with-button">
           <div>
             <label for="password">Новый пароль</label>
-            <input id="password" v-model="password" type="password" />
+            <div class="modal-body__inputMes">
+              <input id="password" v-model="password" type="password" />
+              <button @click="updatePassword">Обновить</button>
+            </div>
             <span v-if="passwordError" class="form-error">{{ passwordError }}</span>
             <span v-if="passwordSuccess" class="form-success">{{ passwordSuccess }}</span>
           </div>
-          <button @click="updatePassword">Обновить</button>
         </div>
         <div class="form-group">
           <label>Выбор нового аватара</label>
@@ -217,6 +225,7 @@ defineExpose({ openModal });
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -265,6 +274,11 @@ defineExpose({ openModal });
 
 .modal-body {
   padding: 20px;
+  &__inputMes{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
   &__form-group {
     margin-bottom: 20px;
@@ -294,7 +308,7 @@ defineExpose({ openModal });
 
     &.with-button {
       display: flex;
-      gap: 14px;
+      gap: 20px;
       align-items: flex-end;
 
       > div {
@@ -303,13 +317,11 @@ defineExpose({ openModal });
 
       button {
         flex-shrink: 0;
-        margin-left: 14px;
-        margin-bottom: 3px;
         padding: 8px 14px;
         border-radius: 4px;
         border: none;
         background-color: var(--accent);
-        color: white;
+        color: rgb(212, 211, 211);
         font-weight: 500;
         cursor: pointer;
         transition: background-color 0.2s;
@@ -375,7 +387,7 @@ defineExpose({ openModal });
 }
 
 .form-error {
-  color: #ff4d4f;
+  color: var(--error);
   font-size: 14px;
   margin-top: 4px;
   display: block;
