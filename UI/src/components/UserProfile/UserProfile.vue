@@ -79,6 +79,8 @@
               {{ previewImage ? "Изменить" : "Выбрать" }}
             </button>
             <span class="form-group__info">max 1MB</span>
+            <span v-if="avatarError" class="form-error">{{ avatarError }}</span>
+            <span v-if="avatarSuccess" class="form-success">{{ avatarSuccess }}</span>
           </div>
         </div>
       </div>
@@ -99,6 +101,8 @@ const username = ref("");
 const firstName = ref("");
 const email = ref("");
 const password = ref("");
+const previewImage = ref<string | null>(null);
+
 const usernameError = ref("");
 const emailError = ref("");
 const passwordError = ref("");
@@ -119,6 +123,8 @@ const resetMessages = () => {
   passwordSuccess.value = "";
   firstNameSuccess.value = "";
   firstNameError.value = "";
+  avatarError.value = "";
+  avatarSuccess.value = "";
 };
 
 const openModal = (user: any) => {
@@ -126,6 +132,7 @@ const openModal = (user: any) => {
   username.value = user?.username || "";
   firstName.value = user?.first_name || "";
   email.value = user?.email || "";
+  previewImage.value = user?.avatar_url || null;
   password.value = "";
   isOpen.value = true;
 };
@@ -207,6 +214,50 @@ const updatePassword = async () => {
     passwordSuccess.value = "Пароль успешно обновлён";
   } catch (error) {
     passwordError.value = "Ошибка при обновлении пароля";
+  }
+};
+
+const handleImageUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 1024 * 1024) {
+    avatarError.value = "Размер изображения не должен превышать 1MB";
+    return;
+  }
+
+  previewImage.value = URL.createObjectURL(file);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    // 🔹 Сначала загружаем файл на Cloudinary через бэкенд
+    const uploadResponse = await apiClient.post("/profile/upload-avatar", formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const uploadedUrl = uploadResponse.data.url;
+
+    // 🔹 Теперь обновляем аватар пользователя по URL
+    await apiClient.patch("/profile/update_avatar", {
+      avatar_url: uploadedUrl,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    avatarSuccess.value = "Аватар обновлён";
+    avatarError.value = "";
+    userStore.updateImage(uploadedUrl); // если метод есть
+  } catch (error) {
+    avatarError.value = "Ошибка при загрузке аватара";
+    avatarSuccess.value = "";
   }
 };
 
