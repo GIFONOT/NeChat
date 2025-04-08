@@ -32,14 +32,14 @@ export const useAuthStore = defineStore("auth", {
           id: response.data.user_id, 
           email,
           username: response.data.username,
-          image: "https://sun9-11.userapi.com/impg/tPC_WVw9-lSqlypnpBxySZm9eloqJBL9di2tSQ/j6onL53z90o.jpg?size=456x492&quality=95&sign=49455024b494d4189109706212579dfe&type=album",
+          image: response.data.avatar_url,
         };
 
         localStorage.setItem("token", this.token);
         localStorage.setItem("user", JSON.stringify(this.user));
 
         userStore.updateUsername(response.data.username);
-        userStore.updateImage("https://sun9-11.userapi.com/impg/tPC_WVw9-lSqlypnpBxySZm9eloqJBL9di2tSQ/j6onL53z90o.jpg?size=456x492&quality=95&sign=49455024b494d4189109706212579dfe&type=album");
+        userStore.updateImage(response.data.avatar_url);
 
         console.log("Успешный вход:", this.user);
       } catch (error) {
