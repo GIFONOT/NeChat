@@ -13,6 +13,7 @@
       <div class="server-sidebar__section-header">
         <span>Текстовые каналы</span>
         <FeatherIcon
+          v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
           name="plus"
           size="18"
           class="server-sidebar__add-icon"
@@ -33,6 +34,7 @@
             channel.name
           }}</span>
           <ChannelMenu
+            v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
             :channel="channel"
             @edit="editChannel"
             @delete="deleteChannel"
@@ -46,7 +48,12 @@
     <div class="server-sidebar__channel-section">
       <div class="server-sidebar__section-header">
         <span>Голосовые каналы</span>
-        <FeatherIcon name="plus" size="18" class="server-sidebar__add-icon" />
+        <FeatherIcon
+          v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
+          name="plus"
+          size="18"
+          class="server-sidebar__add-icon"
+        />
       </div>
       <div class="server-sidebar__channel-list">
         <div class="channel">
@@ -230,6 +237,7 @@ watch(
   &__section-header {
     display: flex;
     justify-content: space-between;
+    min-height: 18px;
     color: var(--text-secondary);
     font-size: 12px;
     margin-bottom: 8px;
