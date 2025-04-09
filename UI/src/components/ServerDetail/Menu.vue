@@ -8,7 +8,7 @@
       />
     </button>
     <transition name="dropdown">
-      <div v-if="isOpen" class="dropdown-menu" ref="menu">
+      <div v-if="isOpen" class="dropdown-menu">
         <button
           v-for="item in filteredMenuItems"
           :key="item.action"
@@ -35,7 +35,6 @@ const props = defineProps<{
 const emit = defineEmits(["action"]);
 
 const isOpen = ref(false);
-const menu = ref<HTMLElement | null>(null);
 
 // Все возможные пункты меню
 const menuItems = [
@@ -62,6 +61,7 @@ const menuItems = [
     label: "Покинуть сервер",
     icon: "log-out",
     roles: ["admin", "member"],
+    danger: true,
   },
   {
     action: "delete",
@@ -88,19 +88,19 @@ const handleAction = (action: string) => {
   isOpen.value = false;
 };
 
-// Закрытие меню при клике вне его
 const handleClickOutside = (event: MouseEvent) => {
-  if (menu.value && !menu.value.contains(event.target as Node)) {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.dropdown-container')) {
     isOpen.value = false;
   }
 };
 
 onMounted(() => {
-  document.addEventListener("mousedown", handleClickOutside);
+  document.addEventListener('mousedown', handleClickOutside);
 });
 
 onUnmounted(() => {
-  document.removeEventListener("mousedown", handleClickOutside);
+  document.removeEventListener('mousedown', handleClickOutside);
 });
 </script>
 
@@ -157,7 +157,10 @@ onUnmounted(() => {
   }
 }
 .dropdown-item.danger:hover {
-  background-color: var(--error);
+  background-color: var(--error-light);
+}
+.dropdown-item.danger {
+  color: var(--error);
 }
 
 // Анимации

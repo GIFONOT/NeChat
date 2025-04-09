@@ -25,10 +25,18 @@
           v-for="channel in textChannel"
           :key="channel.id"
           class="channel"
+          :class="{ 'channel--active': activeChannelId === channel.id }"
           @click="selectChannel(channel)"
         >
           <FeatherIcon name="hash" size="20" />
-          {{ channel.name }}
+          <span class="server-sidebar__channel-list__label">{{
+            channel.name
+          }}</span>
+          <ChannelMenu
+            :channel="channel"
+            @edit="editChannel"
+            @delete="deleteChannel"
+          />
         </div>
         <CreateTCModal ref="modalRef" @create="CreatedTC" />
       </div>
@@ -53,19 +61,22 @@
 import FeatherIcon from "@components/Icon/FeatherIcon.vue";
 import ServerDropdown from "@components/ServerDetail/Menu.vue";
 import { useServerStore } from "@stores/ServerStore";
-import CreateTCModal from "@components/CreateTCModal/CreateTCModal.vue"
+import CreateTCModal from "@components/CreateTCModal/CreateTCModal.vue";
+import ChannelMenu from "@components/ServerDetail/ChannelMenu.vue";
 import apiClient from "@/api";
 import { onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const Server = ref<Server>();
 const textChannel = ref<TextChannel[]>([]);
 const router = useRoute();
+const rout = useRouter();
 const serversCache = new Map<string, Server>();
 const serverStore = useServerStore();
 const modalRef = ref<InstanceType<typeof CreateTCModal> | null>(null);
+const activeChannelId = ref("");
 
-const handleServerAction = (action: any) => {
+const handleServerAction = async (action: any) => {
   switch (action) {
     case "invite":
       // Логика приглашения
@@ -74,7 +85,10 @@ const handleServerAction = (action: any) => {
       // Открытие настроек
       break;
     case "delete":
-      // Подтверждение удаления
+      await delServer();
+      rout.push("/home").then(() => {
+        window.location.reload(); // ну да кастыль своего рода )))) но впадлу чистить кеш
+      });
       break;
     // ... другие действия
   }
@@ -85,9 +99,15 @@ const addTextChenel = async () => {
 const CreatedTC = async () => {
   await fetchTextChannels();
 };
+const editChannel = (channel: any) => {};
+
+const deleteChannel = async (channel: any) => {
+  await delTextChannels(channel.id);
+  await fetchTextChannels();
+};
 
 const selectChannel = (channel: TextChannel) => {
-  console.log("Выбран канал:", channel.name);
+  activeChannelId.value = channel.id;
 };
 
 const fetchServer = async () => {
@@ -128,6 +148,33 @@ const fetchTextChannels = async () => {
   } finally {
   }
 };
+const delTextChannels = async (channel_id: string) => {
+  try {
+    const response = await apiClient.delete(
+      `/servers/${router.params.id}/del/textchannels/${channel_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Ошибка удаления канала:", error);
+  } finally {
+  }
+};
+const delServer = async () => {
+  try {
+    const response = await apiClient.delete(`/servers/${router.params.id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+  } catch (error) {
+    console.error("Ошибка удаления сервера:", error);
+  } finally {
+  }
+};
 
 onMounted(async () => {
   await fetchServer();
@@ -145,7 +192,7 @@ watch(
 );
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .server-sidebar {
   width: 240px;
   height: auto;
@@ -193,6 +240,10 @@ watch(
     display: flex;
     flex-direction: column;
     gap: 3px;
+
+    &__label {
+      flex: 1;
+    }
   }
 }
 
@@ -204,6 +255,10 @@ watch(
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
+
+  &--active {
+    background: var(--element-bg);
+  }
 }
 
 .channel:hover {

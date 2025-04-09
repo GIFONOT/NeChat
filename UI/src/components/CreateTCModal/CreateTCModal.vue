@@ -30,6 +30,7 @@
         </div>
 
         <div class="modal-body__form-group">
+          <label for="channel-description">Приватный канал</label>
           <label class="checkbox-label">
             <input
               type="checkbox"
@@ -37,7 +38,6 @@
               class="checkbox-input"
             />
             <span class="checkbox-custom"></span>
-            Приватный канал
           </label>
           <p class="checkbox-description">
             Только участники с разрешением смогут просматривать и участвовать в
@@ -206,7 +206,6 @@ defineExpose({ openModal });
 }
 
 .checkbox-label {
-  display: flex;
   align-items: center;
   cursor: pointer;
   margin-bottom: 4px;
@@ -221,10 +220,9 @@ defineExpose({ openModal });
 }
 
 .checkbox-custom {
-  position: relative;
+  position: fixed;
   height: 18px;
   width: 18px;
-  background-color: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
   margin-right: 10px;
@@ -237,7 +235,7 @@ defineExpose({ openModal });
     top: 2px;
     width: 5px;
     height: 10px;
-    border: solid var(--accent);
+    border: solid #4caf50;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
@@ -285,7 +283,7 @@ defineExpose({ openModal });
     font-weight: 500;
 
     &:hover {
-      opacity: 0.8;
+      opacity: 0.9;
     }
 
     &:disabled {
