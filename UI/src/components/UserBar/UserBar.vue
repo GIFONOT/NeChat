@@ -30,9 +30,8 @@
         @click="openProfileModal"
       />
     </div>
+    <UserProfile ref="profileModalRef" />
   </div>
-
-  <UserProfile ref="profileModalRef" />
 </template>
 
 <script setup lang="ts">
