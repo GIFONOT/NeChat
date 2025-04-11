@@ -1,66 +1,76 @@
 <template>
-  <div class="server-sidebar">
-    <div class="server-sidebar__server-header">
-      <h2 class="server-sidebar__server-header__label">{{ Server?.name }}</h2>
-      <ServerDropdown
-        v-if="Server"
-        :server="Server"
-        @action="handleServerAction"
-      />
-    </div>
-    <!-- Текстовые каналы -->
-    <div class="server-sidebar__channel-section">
-      <div class="server-sidebar__section-header">
-        <span>Текстовые каналы</span>
-        <FeatherIcon
-          v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
-          name="plus"
-          size="18"
-          class="server-sidebar__add-icon"
-          @click="addTextChenel"
+  <div class="server-container">
+    <div class="server-sidebar">
+      <div class="server-sidebar__server-header">
+        <h2 class="server-sidebar__server-header__label">{{ Server?.name }}</h2>
+        <ServerDropdown
+          v-if="Server"
+          :server="Server"
+          @action="handleServerAction"
         />
       </div>
-      <div class="server-sidebar__channel-list">
-        <div
-          v-if="textChannel"
-          v-for="channel in textChannel"
-          :key="channel.id"
-          class="channel"
-          :class="{ 'channel--active': activeChannelId === channel.id }"
-          @click="selectChannel(channel)"
-        >
-          <FeatherIcon name="hash" size="20" />
-          <span class="server-sidebar__channel-list__label">{{
-            channel.name
-          }}</span>
-          <ChannelMenu
-            v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
-            :channel="channel"
-            @edit="editChannel"
-            @delete="deleteChannel"
+      <!-- Текстовые каналы -->
+      <div class="server-sidebar__channel-section">
+        <div class="server-sidebar__section-header">
+          <span>Текстовые каналы</span>
+          <FeatherIcon
+            v-if="
+              Server?.user_role && ['owner', 'admin'].includes(Server.user_role)
+            "
+            name="plus"
+            size="18"
+            class="server-sidebar__add-icon"
+            @click="addTextChenel"
           />
         </div>
-        <CreateTCModal ref="modalRef" @create="CreatedTC" />
+        <div class="server-sidebar__channel-list">
+          <div
+            v-if="textChannel"
+            v-for="channel in textChannel"
+            :key="channel.id"
+            class="channel"
+            :class="{ 'channel--active': activeChannelId === channel.id }"
+            @click="selectChannel(channel)"
+          >
+            <FeatherIcon name="hash" size="20" />
+            <span class="server-sidebar__channel-list__label">{{
+              channel.name
+            }}</span>
+            <ChannelMenu
+              v-if="
+                Server?.user_role &&
+                ['owner', 'admin'].includes(Server.user_role)
+              "
+              :channel="channel"
+              @edit="editChannel"
+              @delete="deleteChannel"
+            />
+          </div>
+          <CreateTCModal ref="modalRef" @create="CreatedTC" />
+        </div>
       </div>
-    </div>
 
-    <!-- Голосовые каналы -->
-    <div class="server-sidebar__channel-section">
-      <div class="server-sidebar__section-header">
-        <span>Голосовые каналы</span>
-        <FeatherIcon
-          v-if="Server?.user_role && ['owner', 'admin'].includes(Server.user_role)"
-          name="plus"
-          size="18"
-          class="server-sidebar__add-icon"
-        />
-      </div>
-      <div class="server-sidebar__channel-list">
-        <div class="channel">
-          <!-- <FeatherIcon name="volume-2" size="20" /> Общий -->
+      <!-- Голосовые каналы -->
+      <div class="server-sidebar__channel-section">
+        <div class="server-sidebar__section-header">
+          <span>Голосовые каналы</span>
+          <FeatherIcon
+            v-if="
+              Server?.user_role && ['owner', 'admin'].includes(Server.user_role)
+            "
+            name="plus"
+            size="18"
+            class="server-sidebar__add-icon"
+          />
+        </div>
+        <div class="server-sidebar__channel-list">
+          <div class="channel">
+            <!-- <FeatherIcon name="volume-2" size="20" /> Общий -->
+          </div>
         </div>
       </div>
     </div>
+      <router-view v-if="isLoaded" />
   </div>
 </template>
 
@@ -82,6 +92,7 @@ const serversCache = new Map<string, Server>();
 const serverStore = useServerStore();
 const modalRef = ref<InstanceType<typeof CreateTCModal> | null>(null);
 const activeChannelId = ref("");
+const isLoaded = ref(false);
 
 const handleServerAction = async (action: any) => {
   switch (action) {
@@ -115,6 +126,11 @@ const deleteChannel = async (channel: any) => {
 
 const selectChannel = (channel: TextChannel) => {
   activeChannelId.value = channel.id;
+  const chatId = channel.id;
+  rout.push({
+    name: "chat",
+    params: { chatId },
+  });
 };
 
 const fetchServer = async () => {
@@ -184,26 +200,30 @@ const delServer = async () => {
 };
 
 onMounted(async () => {
-  await fetchServer();
-  await fetchTextChannels();
+  await Promise.all([fetchServer(), fetchTextChannels()]);
+  isLoaded.value = true;
 });
-
 watch(
   () => router.params.id,
-  (newId, oldId) => {
+  async (newId, oldId) => {
     if (newId !== oldId) {
-      fetchServer();
-      fetchTextChannels();
+      isLoaded.value = false;
+      await Promise.all([fetchServer(), fetchTextChannels()]);
+      isLoaded.value = true;
     }
-  }
+  },
+  { immediate: false }
 );
 </script>
 
 <style lang="scss" scoped>
+.server-container {
+  display: flex;
+}
 .server-sidebar {
   width: 240px;
   height: auto;
-  padding: 25px 0px 0px 25px;
+  padding: 25px 25px 0px 25px;
   border-left: 1px solid var(--element-bg);
 
   &__server-header {

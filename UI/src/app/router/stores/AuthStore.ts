@@ -2,13 +2,6 @@ import { defineStore } from "pinia";
 import { useUserStore } from "@stores/UserStore";
 import apiClient from "@/api";
 
-interface User {
-  id: number;
-  email: string;
-  username: string;
-  image: string | null;
-}
-
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     token: localStorage.getItem("token") || "",
