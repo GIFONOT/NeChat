@@ -29,6 +29,20 @@ export const useUserStore = defineStore("user", {
         this.user.image = image;
         localStorage.setItem("user", JSON.stringify(this.user));
       }
-    }
+    },
+
+    updateEmail(email: string) {
+      if (this.user) {
+        this.user.email = email;
+        localStorage.setItem("user", JSON.stringify(this.user));
+      }
+    },
+
+    updateId(id: any) {
+      if (this.user) {
+        this.user.id = id;
+        localStorage.setItem("user", JSON.stringify(this.user));
+      }
+    },
   }
 });
