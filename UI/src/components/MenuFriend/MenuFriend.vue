@@ -2,56 +2,92 @@
   <div class="friend-sidebar">
     <div class="friend-sidebar__header">
       <h3 class="friend-sidebar__title">Друзья</h3>
-      <FeatherIcon name="plus" size="20" class="friend-sidebar__add-icon" />
+      <div class="friend-sidebar__icons">
+        <FeatherIcon name="plus" size="20" class="friend-sidebar__icon" @click="openAddFriendModal"/>
+        <FeatherIcon name="user-check" size="20" class="friend-sidebar__icon" @click="openRequestsModal"/>
+      </div>
     </div>
 
     <div class="friend-sidebar__list">
+      <Loading :isLoading="isLoading" />
       <div
         v-for="friend in friends"
-        :key="friend.id"
+        :key="friend.user_id"
         class="friend-card"
-        :class="{ 'friend-card--active': activeFriendId === friend.id }"
-        @click="selectFriend(friend.id)"
+        :class="{ 'friend-card--active': activeFriendId === friend.user_id  }"
+        @click="selectFriend(friend.user_id )"
       >
-        <div class="friend-card__avatar">
+        <div class="friend-card">
           <img
-            v-if="friend.image"
-            :src="friend.image"
+            v-if="friend.avatar_url"
+            :src="friend.avatar_url"
             class="friend-card__image"
           />
           <div v-else class="friend-card__placeholder">
-            {{ friend.name.charAt(0).toUpperCase() }}
+            {{ friend.username.charAt(0).toUpperCase() }}
           </div>
         </div>
-        <span class="friend-card__name">{{ friend.name }}</span>
+        <span class="friend-card__name">{{ friend.username }}</span>
       </div>
     </div>
+    <AddFriendModal ref="addModalRef" @request-sent="refreshFriends" />
+    <FriendRequestsModal ref="requestsModalRef" @responded="refreshFriends" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import { useRouter } from "vue-router";
+import apiClient from "@/api";
+import Loading from "@/components/Loading.vue";
+import AddFriendModal from "@/components/AddFriendModal/AddFriendModal.vue";
+import FriendRequestsModal from "@/components/FriendRequestsModal/FriendRequestsModal.vue";
 
-interface Friend {
-  id: string;
-  name: string;
-  image?: string;
-}
-
-const friends = ref<Friend[]>([
-]);
-
+const friends = ref([]);
 const activeFriendId = ref("");
+const isLoading = ref(true);
+
+const addModalRef = ref<InstanceType<typeof AddFriendModal> | null>(null);
+const requestsModalRef = ref<InstanceType<typeof FriendRequestsModal> | null>(null);
+
+const openAddFriendModal = () => {
+  addModalRef.value?.openModal();
+};
+
+const openRequestsModal = () => {
+  requestsModalRef.value?.openModal();
+};
+
 const router = useRouter();
 
 const selectFriend = (id: string) => {
   activeFriendId.value = id;
-  router.push({
-    // ваша логика навигации
-  });
+  // Допиши переход в чат или другой экшен
 };
+
+const fetchFriends = async () => {
+  isLoading.value = true;
+  try {
+    const response = await apiClient.get("/friends/friendsList", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    friends.value = response.data;
+  } catch (e) {
+    console.error("Ошибка при загрузке друзей:", e);
+    friends.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const refreshFriends = async () => {
+  await fetchFriends();
+};
+
+onMounted(fetchFriends);
 </script>
 
 <style lang="scss" scoped>
@@ -76,10 +112,18 @@ const selectFriend = (id: string) => {
     margin-bottom: 8px;
   }
 
-  &__add-icon {
+  &__icons {
+    display: flex;
+    gap: 8px;
     margin-bottom: 10px;
+  }
+
+  &__icon {
+    cursor: pointer;
+    transition: opacity 0.2s;
+
     &:hover {
-      cursor: pointer;
+      opacity: 0.8;
     }
   }
 
@@ -95,7 +139,6 @@ const selectFriend = (id: string) => {
   align-items: center;
   gap: 12px;
   border-radius: 8px;
-  padding: 4px;
   cursor: pointer;
   transition: all 0.2s;
   background-color: transparent;
@@ -108,21 +151,10 @@ const selectFriend = (id: string) => {
     background-color: var(--element-bg);
   }
 
-  &__avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background-color: var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
   &__image {
-    width: 100%;
-    height: 100%;
+    width: 48px;
+    height: 48px;
+    border-radius: 20%;
     object-fit: cover;
   }
 
@@ -133,7 +165,7 @@ const selectFriend = (id: string) => {
   }
 
   &__name {
-    font-size: 14px;
+    font-size: 20px;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;

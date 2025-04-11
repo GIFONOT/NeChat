@@ -40,6 +40,8 @@ export const useAuthStore = defineStore("auth", {
 
         userStore.updateUsername(response.data.username);
         userStore.updateImage(response.data.avatar_url);
+        userStore.updateEmail(email);
+        userStore.updateId(response.data.user_id);
 
         console.log("Успешный вход:", this.user);
       } catch (error) {
