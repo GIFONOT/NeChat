@@ -1,13 +1,6 @@
 // @/stores/UserStore.ts
 import { defineStore } from "pinia";
 
-interface User {
-  id: number;
-  email: string;
-  username: string;
-  image: string;
-}
-
 export const useUserStore = defineStore("user", {
   state: () => ({
     user: localStorage.getItem("user") 
