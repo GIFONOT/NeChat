@@ -5,8 +5,6 @@
       <div class="friend-sidebar__icons">
         <div class="icon-wrapper">
           <FeatherIcon name="plus" size="20" class="friend-sidebar__icon" @click="openAddFriendModal" />
-        </div>
-        <div class="icon-wrapper">
           <FeatherIcon name="user-check" size="20" class="friend-sidebar__icon" @click="openRequestsModal" />
           <span v-if="hasIncomingRequests" class="request-indicator" />
         </div>
@@ -144,7 +142,7 @@ onMounted(() => {
     transition: opacity 0.2s;
 
     &:hover {
-      opacity: 0.8;
+      opacity: 0.9;
     }
   }
 
@@ -196,6 +194,8 @@ onMounted(() => {
 
 .icon-wrapper {
   position: relative;
+  display: flex;
+  gap: 8px;
 }
 
 .request-indicator {
@@ -204,7 +204,7 @@ onMounted(() => {
   right: -2px;
   width: 10px;
   height: 10px;
-  background-color: red;
+  background-color: var(--error-dark);
   border-radius: 50%;
 }
 </style>

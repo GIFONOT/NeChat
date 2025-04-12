@@ -2,12 +2,20 @@
   <div class="servers-sidebar">
     <div class="servers-sidebar__header">
       <h3 class="servers-sidebar__title">Серверы</h3>
-      <FeatherIcon
+      <div class="icon-wrapper">
+        <FeatherIcon
         name="plus"
         size="20"
-        class="servers-sidebar__add-icon"
+        class="servers-sidebar__icon"
         @click="addServer"
       />
+        <FeatherIcon
+          name="bell"
+          size="20"
+          class="servers-sidebar__icon"
+        />
+        <span class="request-indicator" />
+      </div>
     </div>
 
     <div class="servers-sidebar__list">
@@ -71,8 +79,7 @@ const fetchUserServers = async () => {
   } catch (error) {
     console.error("Ошибка загрузки серверов:", error);
     userServers.value = [];
-  }
-  finally{
+  } finally {
     isLoading.value = false;
   }
 };
@@ -111,10 +118,13 @@ onMounted(async () => {
     margin-bottom: 8px;
   }
 
-  &__add-icon {
+  &__icon {
     margin-bottom: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
     &:hover {
-      cursor: pointer;
+      opacity: 0.9;
     }
   }
 
@@ -158,5 +168,19 @@ onMounted(async () => {
     font-weight: bold;
     color: var(--text-primary);
   }
+}
+.icon-wrapper {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
+.request-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--error-dark);
+  border-radius: 50%;
 }
 </style>
