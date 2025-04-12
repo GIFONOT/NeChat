@@ -3,8 +3,13 @@
     <div class="friend-sidebar__header">
       <h3 class="friend-sidebar__title">Друзья</h3>
       <div class="friend-sidebar__icons">
-        <FeatherIcon name="plus" size="20" class="friend-sidebar__icon" @click="openAddFriendModal"/>
-        <FeatherIcon name="user-check" size="20" class="friend-sidebar__icon" @click="openRequestsModal"/>
+        <div class="icon-wrapper">
+          <FeatherIcon name="plus" size="20" class="friend-sidebar__icon" @click="openAddFriendModal" />
+        </div>
+        <div class="icon-wrapper">
+          <FeatherIcon name="user-check" size="20" class="friend-sidebar__icon" @click="openRequestsModal" />
+          <span v-if="hasIncomingRequests" class="request-indicator" />
+        </div>
       </div>
     </div>
 
@@ -47,9 +52,21 @@ import FriendRequestsModal from "@/components/FriendRequestsModal/FriendRequests
 const friends = ref([]);
 const activeFriendId = ref("");
 const isLoading = ref(true);
+const hasIncomingRequests = ref(false);
 
 const addModalRef = ref<InstanceType<typeof AddFriendModal> | null>(null);
 const requestsModalRef = ref<InstanceType<typeof FriendRequestsModal> | null>(null);
+
+const checkIncomingRequests = async () => {
+  try {
+    const res = await apiClient.get("/friends/requests", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    hasIncomingRequests.value = res.data.incoming?.length > 0;
+  } catch (e) {
+    console.error("Ошибка при проверке заявок:", e);
+  }
+};
 
 const openAddFriendModal = () => {
   addModalRef.value?.openModal();
@@ -85,9 +102,13 @@ const fetchFriends = async () => {
 
 const refreshFriends = async () => {
   await fetchFriends();
+  await checkIncomingRequests();
 };
 
-onMounted(fetchFriends);
+onMounted(() => {
+  fetchFriends();
+  checkIncomingRequests();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -171,5 +192,19 @@ onMounted(fetchFriends);
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+.icon-wrapper {
+  position: relative;
+}
+
+.request-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
 }
 </style>
