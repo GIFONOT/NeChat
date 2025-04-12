@@ -4,21 +4,35 @@
       <div class="modal-content__header">
         <h3>Добавить друга</h3>
         <button class="modal-content__close-btn" @click="closeModal">
-          <FeatherIcon name="x" size="20" />
+          <FeatherIcon name="x" size="20" strokeWidth="2.5" />
         </button>
       </div>
 
       <div class="modal-body">
-        <label for="username">Логин друга</label>
-        <input
-          v-model="login"
-          type="text"
-          id="username"
-          placeholder="Введите логин"
-        />
-        <span v-if="error" class="form-error">{{ error }}</span>
-        <span v-if="success" class="form-success">{{ success }}</span>
-        <button @click="sendRequest" class="send-btn">Отправить заявку</button>
+        <div class="modal-body__form-group">
+          <label for="username">Логин друга</label>
+          <input
+            id="username"
+            v-model="login"
+            type="text"
+            placeholder="Введите логин"
+          />
+          <span v-if="error" class="form-error">{{ error }}</span>
+          <span v-if="success" class="form-success">{{ success }}</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="modal-footer__cancel-btn" @click="closeModal">
+          Отмена
+        </button>
+        <button
+          class="modal-footer__send-btn"
+          @click="sendRequest"
+          :disabled="!login.trim()"
+        >
+          Отправить заявку
+        </button>
       </div>
     </div>
   </div>
@@ -64,7 +78,8 @@ const sendRequest = async () => {
   try {
     await apiClient.post(
       "/friends/request",
-      { receiver_username: login.value,
+      { 
+        receiver_username: login.value,
         status: "pending",
       },
       {
@@ -76,6 +91,7 @@ const sendRequest = async () => {
 
     success.value = "Заявка отправлена!";
     emit("request-sent");
+    setTimeout(() => closeModal(), 1500);
   } catch (e: any) {
     if (e.response?.data?.detail) {
       error.value = e.response.data.detail;
@@ -96,6 +112,7 @@ defineExpose({ openModal });
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -104,58 +121,126 @@ defineExpose({ openModal });
 
 .modal-content {
   background-color: var(--element-bg);
-  border-radius: 10px;
-  padding: 10px;
-  max-width: 400px;
+  border-radius: 12px;
   width: 100%;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 
   &__header {
+    padding: 16px 20px;
     border-bottom: 1px solid var(--border);
-    max-height: 70px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+
+    h3 {
+      margin: 0;
+      font-size: var(--text-lx);
+    }
   }
 
   &__close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
     background: none;
     border: none;
     cursor: pointer;
     color: var(--text-primary);
+    margin-left: 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: var(--border);
+    }
   }
 }
 
 .modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 20px;
 
-  input {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background-color: var(--bg);
-    color: var(--text-primary);
-  }
+  &__form-group {
+    margin-bottom: 10px;
 
-  .send-btn {
-    padding: 10px;
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: var(--text-lx);
+    }
+
+    input[type="text"] {
+      width: 95%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-size: 1rem;
+
+      &:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+    }
   }
 }
 
 .form-error {
+  display: block;
+  margin-top: 6px;
   color: var(--error);
   font-size: 14px;
 }
 
 .form-success {
+  display: block;
+  margin-top: 6px;
   color: #4caf50;
   font-size: 14px;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  &__cancel-btn {
+    background: none;
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.1s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__send-btn {
+    background-color: var(--accent);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: rgb(212, 211, 211);
+    font-weight: 500;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      background-color: var(--border);
+      color: var(--text-primary);
+      cursor: not-allowed;
+    }
+  }
 }
 </style>
