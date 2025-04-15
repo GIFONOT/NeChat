@@ -47,7 +47,7 @@ import Loading from "@/components/Loading.vue";
 import AddFriendModal from "@/components/AddFriendModal/AddFriendModal.vue";
 import FriendRequestsModal from "@/components/FriendRequestsModal/FriendRequestsModal.vue";
 
-const friends = ref([]);
+const friends = ref<Friend[]>([]);
 const activeFriendId = ref("");
 const isLoading = ref(true);
 const hasIncomingRequests = ref(false);
@@ -78,7 +78,7 @@ const router = useRouter();
 
 const selectFriend = (id: string) => {
   activeFriendId.value = id;
-  // Допиши переход в чат или другой экшен
+  router.push({ name: "direct-message", params: { id } });
 };
 
 const fetchFriends = async () => {
