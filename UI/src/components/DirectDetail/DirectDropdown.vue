@@ -95,7 +95,6 @@ const menuItems = [
 
 .dropdown-menu {
   position: absolute;
-  right: 10;
   top: 100%;
   margin-top: 8px;
   min-width: 200px;
@@ -131,7 +130,10 @@ const menuItems = [
     }
   }
 }
-
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+}
 .dropdown-enter-from,
 .dropdown-leave-to {
   opacity: 0;
