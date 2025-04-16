@@ -13,8 +13,9 @@
           name="bell"
           size="20"
           class="servers-sidebar__icon"
+          @click="chekInvitations"
         />
-        <span class="request-indicator" />
+        <span v-if="hasIncomingRequests" class="request-indicator" />
       </div>
     </div>
 
@@ -38,6 +39,7 @@
       </div>
     </div>
     <CreateServerModal ref="modalRef" @create="handleServerCreated" />
+    <ChekInvitationsModal ref="modalchekInvitations" @responded="handleServerCreated" />
   </div>
 </template>
 
@@ -46,6 +48,7 @@ import { onMounted, ref } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import { useRouter, useRoute } from "vue-router";
 import CreateServerModal from "@components/CreateServerModal/CreateServerModal.vue";
+import ChekInvitationsModal from "@components/ChekInvitationsModal/ChekInvitationsModal.vue"
 import Loading from "@/components/Loading.vue";
 import apiClient from "@/api";
 
@@ -54,11 +57,18 @@ const router = useRouter();
 const rout = useRoute();
 const userServers = ref<Server[]>([]);
 const isLoading = ref(true);
+const hasIncomingRequests = ref(false);
 
 const modalRef = ref<InstanceType<typeof CreateServerModal> | null>(null);
+const modalchekInvitations = ref<InstanceType<typeof CreateServerModal> | null>(null);
+
 const addServer = () => {
   modalRef.value?.openModal();
 };
+const chekInvitations = () => {
+  modalchekInvitations.value?.openModal();
+};
+
 const selectServer = (id: string) => {
   activeServerId.value = id;
   router.push({
@@ -83,11 +93,23 @@ const fetchUserServers = async () => {
     isLoading.value = false;
   }
 };
-const handleServerCreated = () => {
-  fetchUserServers();
+const checkIncomingRequests = async () => {
+  try {
+    const res = await apiClient.get("servers/invites/requests", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    hasIncomingRequests.value = res.data.incoming?.length > 0;
+  } catch (e) {
+    console.error("Ошибка при проверке заявок:", e);
+  }
+};
+const handleServerCreated = async () => {
+  await fetchUserServers();
+  await checkIncomingRequests();
 };
 onMounted(async () => {
   await fetchUserServers();
+  await checkIncomingRequests();
   if (rout.params.id) {
     activeServerId.value = rout.params.id as string;
   }
