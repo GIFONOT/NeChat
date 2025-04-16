@@ -47,10 +47,13 @@ const toggleCollapse = () => {
 </script>
 
 <style lang="scss" scoped>
+// Только так позволяет растянуть чат. На сервер вроде не влияет
 .page {
   display: flex;
+  flex-direction: row;
   position: fixed;
   height: 100vh;
+  width: 100vw;
 }
 
 .main {

@@ -3,10 +3,12 @@ import type { RouteRecordRaw } from "vue-router";
 import server from "./server/index";
 import { useAuthStore } from "@stores/AuthStore";
 import auth from "./auth/index";
+import direct from "./direct/index";
 
 export const routes: RouteRecordRaw[] = [
   server,
   auth,
+  direct,
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
