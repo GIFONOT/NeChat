@@ -1,21 +1,19 @@
 <template>
   <div class="direct-container">
-    <div class="direct-sidebar">
-      <div class="direct-header">
-        <img
-          v-if="friend?.avatar_url"
-          :src="friend.avatar_url"
-          class="direct-avatar"
-        />
-        <div v-else class="direct-placeholder">
-          {{ friend?.username?.charAt(0).toUpperCase() }}
-        </div>
-        <h2 class="direct-username">{{ friend?.username }}</h2>
-        <DirectDropdown v-if="friend" :friend="friend" @action="handleFriendAction" />
+    <div class="direct-header">
+      <img
+        v-if="friend?.avatar_url"
+        :src="friend.avatar_url"
+        class="direct-avatar"
+      />
+      <div v-else class="direct-placeholder">
+        {{ friend?.username?.charAt(0).toUpperCase() }}
       </div>
-      <!-- Здесь потом появятся действия: удалить, заблокировать и т.п. -->
+      <h2 class="direct-username">{{ friend?.username }}</h2>
+      <DirectDropdown v-if="friend" :friend="friend" @action="handleFriendAction" />
     </div>
     <router-view v-if="isLoaded" />
+    <TextChat v-if="friend" :friendId="friend.user_id" />
   </div>
 </template>
 
@@ -24,6 +22,7 @@ import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import apiClient from "@/api";
 import DirectDropdown from "@components/DirectDetail/DirectDropdown.vue";
+import TextChat from "@components/DirectDetail/TextChat.vue";
 
 const route = useRoute();
 const friend = ref<any>(null);
@@ -83,19 +82,18 @@ const handleFriendAction = (action: string) => {
 <style scoped lang="scss">
 .direct-container {
   display: flex;
-}
-
-.direct-sidebar {
-  width: 240px;
-  padding: 25px;
-  border-left: 1px solid var(--element-bg);
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 }
 
 .direct-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 20px;
+  padding: 20px 25px;
+  z-index: 10;
+  width: 91%;
 }
 
 .direct-avatar {
@@ -121,5 +119,8 @@ const handleFriendAction = (action: string) => {
 .direct-username {
   font-size: 18px;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
