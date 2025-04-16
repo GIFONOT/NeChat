@@ -70,7 +70,8 @@
         </div>
       </div>
     </div>
-      <router-view v-if="isLoaded" />
+    <InvitationsServerModal ref="inviteModal" :server="Server ?? null" />
+    <router-view v-if="isLoaded" />
   </div>
 </template>
 
@@ -80,6 +81,7 @@ import ServerDropdown from "@components/ServerDetail/Menu.vue";
 import { useServerStore } from "@stores/ServerStore";
 import CreateTCModal from "@components/CreateTCModal/CreateTCModal.vue";
 import ChannelMenu from "@components/ServerDetail/ChannelMenu.vue";
+import InvitationsServerModal from "@components/InvitationsServerModal/InvitationsServerModal.vue"
 import apiClient from "@/api";
 import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -94,10 +96,11 @@ const modalRef = ref<InstanceType<typeof CreateTCModal> | null>(null);
 const activeChannelId = ref("");
 const isLoaded = ref(false);
 
+const inviteModal = ref<InstanceType<typeof InvitationsServerModal> | null>(null);
 const handleServerAction = async (action: any) => {
   switch (action) {
     case "invite":
-      // Логика приглашения
+      inviteModal.value?.openModal();
       break;
     case "settings":
       // Открытие настроек

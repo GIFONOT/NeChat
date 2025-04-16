@@ -210,7 +210,6 @@ defineExpose({ openModal });
     border: none;
     cursor: pointer;
     color: var(--text-primary);
-    margin-left: 6px;
     border-radius: 50%;
     transition: all 0.2s;
 

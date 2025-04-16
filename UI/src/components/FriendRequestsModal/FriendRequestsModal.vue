@@ -222,6 +222,11 @@ defineExpose({ openModal });
   padding: 10px 12px;
   border-radius: 6px;
   border: 1px solid var(--border);
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--text-primary);
+  }
 }
 
 .request-username {
@@ -243,7 +248,7 @@ defineExpose({ openModal });
 .action-btn {
   padding: 6px 12px;
   border-radius: 4px;
-  font-size: var(--text-s);
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
 
@@ -259,23 +264,22 @@ defineExpose({ openModal });
 
   &--reject {
     background: none;
-    border: 1px solid var(--border);
-    color: var(--text-primary);
+    border: 1px solid var(--error);
+    color: var(--error);
 
     &:hover {
-      background-color: var(--border);
+      background-color: var(--error-light);
     }
   }
 }
 
 .status-badge {
-  font-size: var(--text-s);
+  font-size: 0.9rem;
   padding: 4px 8px;
   border-radius: 4px;
 
   &--pending {
     color: var(--text-secondary);
-    background-color: var(--border);
   }
 
   &--rejected {
