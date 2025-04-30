@@ -25,3 +25,14 @@ interface TextChannel {
   created_at: string;
   updated_at: string;
 }
+
+interface VoiceChannel {
+  id: string;
+  server_id: string;
+  name: string;
+  description: string | null;
+  position: number;
+  is_private: boolean;
+  created_at: string;
+  updated_at: string;
+}

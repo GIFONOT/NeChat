@@ -61,11 +61,26 @@
             name="plus"
             size="18"
             class="server-sidebar__add-icon"
+            @click="addVoiceChannel"
           />
         </div>
         <div class="server-sidebar__channel-list">
-          <div class="channel">
-            <!-- <FeatherIcon name="volume-2" size="20" /> Общий -->
+          <div 
+            v-for="channel in voiceChannels"
+            :key="channel.id"
+            class="channel"
+          >
+            <FeatherIcon name="volume-2" size="20" />
+            <span class="server-sidebar__channel-list__label">{{ channel.name }}</span>
+            <ChannelMenu
+              v-if="
+                Server?.user_role &&
+                ['owner', 'admin'].includes(Server.user_role)
+              "
+              :channel="channel"
+              @edit="editChannel"
+              @delete="deleteChannel"
+            />
           </div>
         </div>
       </div>
@@ -88,6 +103,7 @@ import { useRoute, useRouter } from "vue-router";
 
 const Server = ref<Server>();
 const textChannel = ref<TextChannel[]>([]);
+const voiceChannels = ref<VoiceChannel[]>([]);
 const router = useRoute();
 const rout = useRouter();
 const serversCache = new Map<string, Server>();
@@ -121,6 +137,23 @@ const CreatedTC = async () => {
   await fetchTextChannels();
 };
 const editChannel = (channel: any) => {};
+
+const addVoiceChannel = async () => {
+  try {
+    await apiClient.post(
+      `/servers/${router.params.id}/add/voicechannels`,
+      { name: "Новый голосовой канал" },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    await fetchVoiceChannels();
+  } catch (e) {
+    console.error("Ошибка при создании голосового канала", e);
+  }
+};
 
 const deleteChannel = async (channel: any) => {
   await delTextChannels(channel.id);
@@ -174,6 +207,21 @@ const fetchTextChannels = async () => {
   } finally {
   }
 };
+
+const fetchVoiceChannels = async () => {
+  try {
+    const res = await apiClient.get<VoiceChannel[]>(
+      `/servers/${router.params.id}/voicechannels`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    voiceChannels.value = res.data;
+  } catch (e) {
+    console.error("Ошибка загрузки голосовых каналов", e);
+  }
+};
+
 const delTextChannels = async (channel_id: string) => {
   try {
     const response = await apiClient.delete(
@@ -203,15 +251,16 @@ const delServer = async () => {
 };
 
 onMounted(async () => {
-  await Promise.all([fetchServer(), fetchTextChannels()]);
+  await Promise.all([fetchServer(), fetchTextChannels(), fetchVoiceChannels()]);
   isLoaded.value = true;
 });
+
 watch(
   () => router.params.id,
   async (newId, oldId) => {
     if (newId !== oldId) {
       isLoaded.value = false;
-      await Promise.all([fetchServer(), fetchTextChannels()]);
+      await Promise.all([fetchServer(), fetchTextChannels(), fetchVoiceChannels()]);
       isLoaded.value = true;
     }
   },
