@@ -4,8 +4,8 @@
     <router-view />
   </div>
   <div v-else>
-    <LogoutButton />
     <div class="page">
+      <LogoutButton />
       <div class="main" :class="{ 'main--collapsed': isCollapsed }">
         <FeatherIcon
           :key="isCollapsed ? 'chevron-right' : 'chevron-left'"

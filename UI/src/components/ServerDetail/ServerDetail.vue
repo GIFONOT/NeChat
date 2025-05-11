@@ -78,10 +78,11 @@
                 ['owner', 'admin'].includes(Server.user_role)
               "
               :channel="channel"
-              @edit="editChannel"
-              @delete="deleteChannel"
+              @edit="editVoiceChannel"
+              @delete="deleteVoiceChannel"
             />
           </div>
+          <CreateVCModal ref="voiceModalRef" @create="CreatedVC" />
         </div>
       </div>
     </div>
@@ -94,7 +95,8 @@
 import FeatherIcon from "@components/Icon/FeatherIcon.vue";
 import ServerDropdown from "@components/ServerDetail/Menu.vue";
 import { useServerStore } from "@stores/ServerStore";
-import CreateTCModal from "@components/CreateTCModal/CreateTCModal.vue";
+import CreateTCModal from "@components/CreateChannelModal/CreateTCModal.vue";
+import CreateVCModal from "@components/CreateChannelModal/CreateVCModal.vue";
 import ChannelMenu from "@components/ServerDetail/ChannelMenu.vue";
 import InvitationsServerModal from "@components/InvitationsServerModal/InvitationsServerModal.vue"
 import apiClient from "@/api";
@@ -109,6 +111,7 @@ const rout = useRouter();
 const serversCache = new Map<string, Server>();
 const serverStore = useServerStore();
 const modalRef = ref<InstanceType<typeof CreateTCModal> | null>(null);
+const voiceModalRef = ref<InstanceType<typeof CreateVCModal> | null>(null);
 const activeChannelId = ref("");
 const isLoaded = ref(false);
 
@@ -136,28 +139,26 @@ const addTextChenel = async () => {
 const CreatedTC = async () => {
   await fetchTextChannels();
 };
+
+const CreatedVC = async () => {
+  await fetchVoiceChannels();
+};
 const editChannel = (channel: any) => {};
 
+const editVoiceChannel = (channel: any) => {};
+
 const addVoiceChannel = async () => {
-  try {
-    await apiClient.post(
-      `/servers/${router.params.id}/add/voicechannels`,
-      { name: "Новый голосовой канал" },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-    await fetchVoiceChannels();
-  } catch (e) {
-    console.error("Ошибка при создании голосового канала", e);
-  }
+  voiceModalRef.value?.openModal();
 };
 
 const deleteChannel = async (channel: any) => {
   await delTextChannels(channel.id);
   await fetchTextChannels();
+};
+
+const deleteVoiceChannel = async (channel: any) => {
+  await delVoiceChannels(channel.id);
+  await fetchVoiceChannels();
 };
 
 const selectChannel = (channel: TextChannel) => {
@@ -237,6 +238,23 @@ const delTextChannels = async (channel_id: string) => {
   } finally {
   }
 };
+
+const delVoiceChannels = async (channel_id: string) => {
+  try {
+    const response = await apiClient.delete(
+      `/servers/${router.params.id}/del/voicechannels/${channel_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+  } catch (error) {
+    console.error("Ошибка удаления канала:", error);
+  } finally {
+  }
+};
+
 const delServer = async () => {
   try {
     const response = await apiClient.delete(`/servers/${router.params.id}`, {
