@@ -36,15 +36,19 @@
             <span class="server-sidebar__channel-list__label">{{
               channel.name
             }}</span>
-            <ChannelMenu
+            <div
               v-if="
                 Server?.user_role &&
                 ['owner', 'admin'].includes(Server.user_role)
               "
-              :channel="channel"
-              @edit="editChannel"
-              @delete="deleteChannel"
-            />
+              @click.stop
+            >
+              <ChannelMenu
+                :channel="channel"
+                @edit="editChannel"
+                @delete="deleteChannel"
+              />
+            </div>
           </div>
           <CreateTCModal ref="modalRef" @create="CreatedTC" />
         </div>
@@ -68,19 +72,46 @@
           <div 
             v-for="channel in voiceChannels"
             :key="channel.id"
-            class="channel"
+            class="channel voice-channel"
+            @click="selectVoiceChannel(channel)"
           >
-            <FeatherIcon name="volume-2" size="20" />
-            <span class="server-sidebar__channel-list__label">{{ channel.name }}</span>
-            <ChannelMenu
-              v-if="
-                Server?.user_role &&
-                ['owner', 'admin'].includes(Server.user_role)
-              "
-              :channel="channel"
-              @edit="editVoiceChannel"
-              @delete="deleteVoiceChannel"
-            />
+            <div class="channel-header">
+              <FeatherIcon name="volume-2" size="20" />
+              <span class="server-sidebar__channel-list__label">{{ channel.name }}</span>
+              <div class="channel-actions">
+                <FeatherIcon
+                  v-if="currentVoiceChannel?.id === channel.id"
+                  name="phone-off"
+                  size="18"
+                  class="voice-leave-icon"
+                  @click.stop="leaveVoiceChannel"
+                />
+                <div
+                  v-if="
+                    Server?.user_role &&
+                    ['owner', 'admin'].includes(Server.user_role)
+                  "
+                  @click.stop
+                >
+                  <ChannelMenu
+                    :channel="channel"
+                    @edit="editVoiceChannel"
+                    @delete="deleteVoiceChannel"
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- Участники -->
+            <div class="voice-members">
+              <div
+                v-for="member in serverStore.voiceMembers[channel.id] || []"
+                :key="member.user_id"
+                class="voice-member"
+              >
+                <img :src="member.avatar_url" class="voice-avatar" />
+                <span>{{ member.username }}</span>
+              </div>
+            </div>
           </div>
           <CreateVCModal ref="voiceModalRef" @create="CreatedVC" />
         </div>
@@ -100,7 +131,7 @@ import CreateVCModal from "@components/CreateChannelModal/CreateVCModal.vue";
 import ChannelMenu from "@components/ServerDetail/ChannelMenu.vue";
 import InvitationsServerModal from "@components/InvitationsServerModal/InvitationsServerModal.vue"
 import apiClient from "@/api";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const Server = ref<Server>();
@@ -114,6 +145,10 @@ const modalRef = ref<InstanceType<typeof CreateTCModal> | null>(null);
 const voiceModalRef = ref<InstanceType<typeof CreateVCModal> | null>(null);
 const activeChannelId = ref("");
 const isLoaded = ref(false);
+const currentVoiceChannel = ref<VoiceChannel | null>(null);
+const voiceMembers = ref<VoiceMember[]>([]);
+const heartbeatInterval = ref<number | null>(null);
+let refreshMembersInterval: number | null = null;
 
 const inviteModal = ref<InstanceType<typeof InvitationsServerModal> | null>(null);
 const handleServerAction = async (action: any) => {
@@ -218,6 +253,7 @@ const fetchVoiceChannels = async () => {
       }
     );
     voiceChannels.value = res.data;
+    await serverStore.preloadAllVoiceMembers(router.params.id as string, voiceChannels.value);
   } catch (e) {
     console.error("Ошибка загрузки голосовых каналов", e);
   }
@@ -255,6 +291,54 @@ const delVoiceChannels = async (channel_id: string) => {
   }
 };
 
+const selectVoiceChannel = async (channel: VoiceChannel) => {
+  try {
+    await apiClient.post(
+      `/servers/${router.params.id}/voicechannels/${channel.id}/join`,
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    currentVoiceChannel.value = channel;
+    await loadVoiceMembers(channel.id);
+
+    // Пульс
+    if (heartbeatInterval.value) clearInterval(heartbeatInterval.value);
+    heartbeatInterval.value = window.setInterval(() => {
+      serverStore.heartbeat(router.params.id as string, channel.id);
+    }, 3000); // 3 секунды
+  } catch (e) {
+    console.error("Ошибка входа в голосовой канал", e);
+  }
+};
+
+const loadVoiceMembers = async (channelId: string) => {
+  try {
+    const res = await apiClient.get(
+      `/servers/${router.params.id}/voicechannels/${channelId}/members`,
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    voiceMembers.value = res.data;
+  } catch (e) {
+    console.error("Ошибка загрузки участников голосового канала", e);
+  }
+};
+
+const leaveVoiceChannel = async () => {
+  if (!currentVoiceChannel.value) return;
+  try {
+    await apiClient.post(
+      `/servers/${router.params.id}/voicechannels/${currentVoiceChannel.value.id}/leave`,
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    currentVoiceChannel.value = null;
+    voiceMembers.value = [];
+    if (heartbeatInterval.value) clearInterval(heartbeatInterval.value);
+  } catch (e) {
+    console.error("Ошибка выхода из голосового канала", e);
+  }
+};
+
 const delServer = async () => {
   try {
     const response = await apiClient.delete(`/servers/${router.params.id}`, {
@@ -271,6 +355,20 @@ const delServer = async () => {
 onMounted(async () => {
   await Promise.all([fetchServer(), fetchTextChannels(), fetchVoiceChannels()]);
   isLoaded.value = true;
+
+  refreshMembersInterval = window.setInterval(() => {
+    if (router.params.id) {
+      serverStore.preloadAllVoiceMembers(router.params.id as string, voiceChannels.value);
+    }
+    if (currentVoiceChannel.value) {
+      loadVoiceMembers(currentVoiceChannel.value.id);
+    }
+  }, 4000); // обновлять каждые 4 секунды
+});
+
+onUnmounted(() => {
+  if (heartbeatInterval.value) clearInterval(heartbeatInterval.value);
+  if (refreshMembersInterval) clearInterval(refreshMembersInterval);
 });
 
 watch(
@@ -357,9 +455,80 @@ watch(
   &--active {
     background: var(--element-bg);
   }
+
+  &:hover {
+    background: var(--element-bg);
+  }
+}
+
+// Специфичные стили для голосовых каналов
+.voice-channel {
+  flex-direction: column; // Вертикальное расположение для голосовых
+  align-items: flex-start;
+  
+  .channel-header {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 5px;
+  }
 }
 
 .channel:hover {
   background: var(--element-bg);
+}
+
+// Стили для верхней строки (иконка + название + действия)
+.channel-header {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 5px;
+}
+
+.server-sidebar__channel-list__label {
+  flex: 1;
+}
+
+.voice-members {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 4px 0 0 25px; // Отступ слева для выравнивания с иконкой канала
+}
+.voice-member {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+
+  .voice-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+}
+
+// Стили для иконок действий (меню и выход)
+.channel-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto; 
+  align-items: center;
+  padding-left: 10px;
+  background: inherit;
+}
+
+.channel--active .channel-actions {
+  padding-right: 2px;
+}
+
+.voice-leave-icon {
+  color: var(--error-color);
+  &:hover {
+    color: var(--error-color-hover);
+  }
 }
 </style>

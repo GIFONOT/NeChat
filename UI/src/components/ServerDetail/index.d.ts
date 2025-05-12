@@ -36,3 +36,16 @@ interface VoiceChannel {
   created_at: string;
   updated_at: string;
 }
+
+interface VoiceSession {
+  user_id: string;
+  username: string;
+  avatar_url: string;
+  channel_id: string;
+}
+
+interface VoiceMember {
+  user_id: string;
+  username: string;
+  avatar_url: string;
+};
