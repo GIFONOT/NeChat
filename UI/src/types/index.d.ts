@@ -16,3 +16,13 @@ type Message = {
   timestamp: Date;
   type: 'user' | 'system';
 };
+interface Member {
+  id: string;
+  username: string;
+  avatar: string;
+  role: string;
+  profiles: {
+    username: string;
+    avatar_url?: string;
+  }
+}

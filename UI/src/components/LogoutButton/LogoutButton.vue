@@ -28,6 +28,7 @@ const logout = () => {
   cursor: pointer;
   color: var(--text-primery);
   transition: all 0.2s;
+  z-index: 100;
 }
 
 .logout-button:hover {

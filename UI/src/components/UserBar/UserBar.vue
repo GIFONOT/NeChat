@@ -41,6 +41,7 @@ import { ref, computed } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import UserProfile from "@/components/UserProfile/UserProfile.vue";
 import { useUserStore } from "@stores/UserStore";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 
@@ -48,6 +49,7 @@ const user = computed(() => userStore.user); // теперь user — это д�
 const mic = computed(() => userStore.mic);
 const sound = computed(() => userStore.sound);
 const profileModalRef = ref<InstanceType<typeof UserProfile> | null>(null);
+const route = useRouter();
 
 const toggleMic = () => {
   userStore.toggleMic();
@@ -66,8 +68,9 @@ const props = defineProps({
 });
 
 const toggleCompactIfCollapsed = () => {
+  route.push("/home")
   if (props.compact) {
-    // Здесь можно добавить логику для временного раскрытия
+    
   }
 };
 </script>
@@ -93,6 +96,7 @@ const toggleCompactIfCollapsed = () => {
   }
 
   &__avatar {
+    max-width: 150px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -109,9 +113,11 @@ const toggleCompactIfCollapsed = () => {
 
   &__name {
     font-size: 16px;
+    flex-grow: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    min-width: 0;
   }
 
   &__controls {
