@@ -7,6 +7,7 @@ export const useUserStore = defineStore("user", {
       ? JSON.parse(localStorage.getItem("user") as string) 
       : null as User | null,
     mic: true,
+    sound: true,
   }),
 
   actions: {
@@ -36,6 +37,12 @@ export const useUserStore = defineStore("user", {
         this.user.id = id;
         localStorage.setItem("user", JSON.stringify(this.user));
       }
+    },
+    toggleMic() {
+      this.mic = !this.mic;
+    },
+    toggleSound() {
+      this.sound = !this.sound;
     },
   }
 });
