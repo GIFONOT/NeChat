@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
+import { useUserStore } from "@stores/UserStore";
 import apiClient from "@/api";
 
 export const useServerStore = defineStore("server", {
   state: () => ({
-    voiceMembers: {} as Record<string, Array<{ user_id: string; username: string; avatar_url: string }>>,
+    voiceMembers: {} as Record<string, Array<{ user_id: string; username: string; avatar_url: string; mic: boolean; sound: boolean; }>>,
   }),
 
   actions: {
@@ -12,7 +13,15 @@ export const useServerStore = defineStore("server", {
         const res = await apiClient.get(`/servers/${serverId}/voicechannels/${channelId}/members`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        this.voiceMembers[channelId] = res.data;
+
+        const userStore = useUserStore();
+        const currentUserId = userStore.user.id;
+
+        this.voiceMembers[channelId] = res.data.map((member: any) => ({
+          ...member,
+          mic: member.user_id === currentUserId ? userStore.mic : false, // Пока не актуально, но через Websocket будут актуальные данные
+          sound: member.user_id === currentUserId ? userStore.sound : false,
+        }));
       } catch (e) {
         console.error(`Ошибка загрузки участников канала ${channelId}`, e);
       }

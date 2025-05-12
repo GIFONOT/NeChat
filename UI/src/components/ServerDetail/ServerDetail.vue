@@ -110,6 +110,18 @@
               >
                 <img :src="member.avatar_url" class="voice-avatar" />
                 <span>{{ member.username }}</span>
+                <div class="voice-status-icons">
+                  <FeatherIcon
+                    :name="member.mic === false ? 'mic-off' : 'mic'"
+                    size="16"
+                    class="voice-icon"
+                  />
+                  <FeatherIcon
+                    :name="member.sound === false ? 'volume-x' : 'volume-2'"
+                    size="16"
+                    class="voice-icon"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -547,5 +559,14 @@ watch(
   &:hover {
     color: var(--error-color-hover);
   }
+}
+
+.voice-status-icons {
+  display: flex;
+  gap: 6px;
+}
+
+.voice-icon {
+  color: var(--text-secondary);
 }
 </style>

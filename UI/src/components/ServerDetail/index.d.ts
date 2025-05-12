@@ -48,4 +48,6 @@ interface VoiceMember {
   user_id: string;
   username: string;
   avatar_url: string;
+  mic?: boolean;
+  sound?: boolean;
 };
