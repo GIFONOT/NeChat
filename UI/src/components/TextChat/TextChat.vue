@@ -74,29 +74,7 @@ const props = defineProps<{
     currentUser: User
 }>();
 
-const messages = ref<Message[]>([
-  {
-    id: "1",
-    content: "Привет всем! Это тестовое сообщение.",
-    author: {
-      id: "user1",
-      username: "Тестовый Пользователь",
-      avatar: "",
-    },
-    timestamp: new Date(Date.now() - 3600000),
-    type: "user",
-  },
-  {
-    id: "2",
-    content: "Вы присоединились к каналу",
-    author: {
-      id: "system",
-      username: "Система",
-    },
-    timestamp: new Date(),
-    type: "system",
-  },
-]);
+const messages = ref<Message[]>([]);
 
 const newMessage = ref("");
 const messagesContainer = ref<HTMLElement | null>(null);
@@ -155,13 +133,16 @@ onMounted(() => {
 .text-channel-chat {
   display: flex;
   flex-direction: column;
-
+  width: 500px;
+  margin: 0;
+  padding: 25px 25px 0 25px;
   padding-top: 25px;
+  border-right: 1px solid var(--element-bg);
   //background-color: var(--element-bg);
 }
 
 .chat-header {
-  padding: 15px;
+  padding: 10px;
   border-bottom: 1px solid var(--element-bg);
   display: flex;
   align-items: center;
@@ -169,7 +150,7 @@ onMounted(() => {
 
   .channel-name {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: var(--text-l);
   }
 
   .channel-description {
@@ -267,11 +248,11 @@ onMounted(() => {
 
   .input-wrapper {
     display: flex;
-    align-items: flex-end;
     gap: 10px;
-    background-color: var(--input-bg);
+    background-color: var(--element-bg);
     border-radius: 8px;
     padding: 10px;
+    align-items: center;
   }
 
   textarea {
@@ -281,7 +262,7 @@ onMounted(() => {
     resize: none;
     max-height: 150px;
     color: var(--text-primary);
-    font-family: inherit;
+    font-family: var(--font-primary);
 
     &:focus {
       outline: none;

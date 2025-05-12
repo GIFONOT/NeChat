@@ -72,6 +72,7 @@
     </div>
     <InvitationsServerModal ref="inviteModal" :server="Server ?? null" />
     <router-view v-if="isLoaded" />
+    <ServerMembers />
   </div>
 </template>
 
@@ -82,6 +83,7 @@ import { useServerStore } from "@stores/ServerStore";
 import CreateTCModal from "@components/CreateTCModal/CreateTCModal.vue";
 import ChannelMenu from "@components/ServerDetail/ChannelMenu.vue";
 import InvitationsServerModal from "@components/InvitationsServerModal/InvitationsServerModal.vue"
+import ServerMembers from "@/components/ServerMembers/ServerMembers.vue"
 import apiClient from "@/api";
 import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -228,6 +230,7 @@ watch(
   height: auto;
   padding: 25px 25px 0px 25px;
   border-left: 1px solid var(--element-bg);
+  border-right: 1px solid var(--element-bg);
 
   &__server-header {
     display: flex;
@@ -243,7 +246,7 @@ watch(
     &__label {
       flex: 1;
       margin: 0;
-      font-size: 16px;
+      font-size: var(--text-l);
     }
   }
   &__add-icon {
@@ -285,14 +288,17 @@ watch(
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 16px;
+  color: var(--text-secondary);
   cursor: pointer;
 
   &--active {
     background: var(--element-bg);
+    color: var(--text-primary);
   }
 }
 
 .channel:hover {
   background: var(--element-bg);
+  color: var(--text-primary);
 }
 </style>

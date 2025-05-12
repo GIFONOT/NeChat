@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import FeatherIcon from "@/components/Icon/FeatherIcon.vue";
 import { useRouter, useRoute } from "vue-router";
 import CreateServerModal from "@components/CreateServerModal/CreateServerModal.vue";
@@ -107,6 +107,15 @@ const handleServerCreated = async () => {
   await fetchUserServers();
   await checkIncomingRequests();
 };
+watch(
+  () => rout.params.id,
+  async (newId, oldId) => {
+    if (newId !== oldId) {
+      activeServerId.value = rout.params.id as string;
+    }
+  },
+  { immediate: false }
+);
 onMounted(async () => {
   await fetchUserServers();
   await checkIncomingRequests();
