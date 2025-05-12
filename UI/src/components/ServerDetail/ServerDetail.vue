@@ -293,6 +293,19 @@ const delVoiceChannels = async (channel_id: string) => {
 
 const selectVoiceChannel = async (channel: VoiceChannel) => {
   try {
+    // Если уже подключен к другому каналу — выйти из него
+    if (currentVoiceChannel.value && currentVoiceChannel.value.id !== channel.id) {
+      await apiClient.post(
+        `/servers/${router.params.id}/voicechannels/${currentVoiceChannel.value.id}/leave`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    }
+
     await apiClient.post(
       `/servers/${router.params.id}/voicechannels/${channel.id}/join`,
       {},
@@ -364,11 +377,15 @@ onMounted(async () => {
       loadVoiceMembers(currentVoiceChannel.value.id);
     }
   }, 4000); // обновлять каждые 4 секунды
+
+  // Автоматический выход при закрытии вкладки
+  window.addEventListener("beforeunload", leaveVoiceChannel);
 });
 
 onUnmounted(() => {
   if (heartbeatInterval.value) clearInterval(heartbeatInterval.value);
   if (refreshMembersInterval) clearInterval(refreshMembersInterval);
+  window.removeEventListener("beforeunload", leaveVoiceChannel);
 });
 
 watch(
