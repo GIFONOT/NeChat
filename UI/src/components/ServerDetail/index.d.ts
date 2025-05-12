@@ -25,3 +25,29 @@ interface TextChannel {
   created_at: string;
   updated_at: string;
 }
+
+interface VoiceChannel {
+  id: string;
+  server_id: string;
+  name: string;
+  description: string | null;
+  position: number;
+  is_private: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface VoiceSession {
+  user_id: string;
+  username: string;
+  avatar_url: string;
+  channel_id: string;
+}
+
+interface VoiceMember {
+  user_id: string;
+  username: string;
+  avatar_url: string;
+  mic?: boolean;
+  sound?: boolean;
+};

@@ -10,17 +10,19 @@
     <div class="UserBar__controls">
       <FeatherIcon
         class="UserBar__icon"
-        :key="user.mic ? 'mic' : 'mic-off'"
-        :name="user.mic ? 'mic' : 'mic-off'"
+        :key="mic ? 'mic' : 'mic-off'"
+        :name="mic ? 'mic' : 'mic-off'"
         size="24"
         strokeWidth="2.5"
+        @click="toggleMic"
       />
       <FeatherIcon
         class="UserBar__icon"
-        :key="user.mic ? 'volume-2' : 'volume-x'"
-        :name="user.mic ? 'volume-2' : 'volume-x'"
+        :key="sound ? 'volume-2' : 'volume-x'"
+        :name="sound ? 'volume-2' : 'volume-x'"
         size="24"
         strokeWidth="2.5"
+        @click="toggleSound"
       />
       <FeatherIcon
         class="UserBar__icon"
@@ -44,10 +46,19 @@ const userStore = useUserStore();
 
 const user = computed(() => userStore.user); // теперь user — это данные пользователя
 const mic = computed(() => userStore.mic);
+const sound = computed(() => userStore.sound);
 const profileModalRef = ref<InstanceType<typeof UserProfile> | null>(null);
 
+const toggleMic = () => {
+  userStore.toggleMic();
+};
+
+const toggleSound = () => {
+  userStore.toggleSound();
+};
+
 const openProfileModal = () => {
-  profileModalRef.value?.openModal();
+  profileModalRef.value?.openModal(user);
 };
 
 const props = defineProps({
